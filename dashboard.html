@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VIP Client Dashboard | @rishutrains</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Platform-wide Liquid Glass & Responsive Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        /* PAGE SPECIFIC OVERRIDES */
+        .nav-header {
+            background: rgba(8, 8, 14, 0.85); backdrop-filter: blur(40px) saturate(190%); -webkit-backdrop-filter: blur(40px) saturate(190%);
+            border-bottom: 1.5px solid var(--border-gold); padding: 0.85rem 1.5rem;
+            display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 15px 50px rgba(0,0,0,0.95);
+        }
+        .logo { font-size: 1.25rem; font-weight: 900; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 0.75rem; }
+        .logo img { width: 40px; height: 40px; border-radius: 50%; border: 2.5px solid var(--gold-primary); box-shadow: 0 0 25px var(--gold-glow); object-fit: cover; }
+        .logo span { background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.03em; font-weight: 900; }
+
+        .dash-layout { display: flex; flex: 1; min-height: calc(100vh - 70px); position: relative; z-index: 1; }
+        .sidebar {
+            width: 270px; background: rgba(10, 10, 16, 0.78); border-right: 1.5px solid var(--border-glass);
+            padding: 2rem 1.1rem; display: flex; flex-direction: column; gap: 0.65rem; flex-shrink: 0;
+            backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%);
+            box-shadow: inset -1px 0 1px rgba(255, 255, 255, 0.1);
+        }
+        .nav-tab-btn {
+            padding: 0.9rem 1.2rem; border-radius: 16px; color: var(--text-muted); font-size: 0.88rem; font-weight: 800;
+            background: rgba(255, 255, 255, 0.02); border: 1.5px solid transparent; text-align: left; cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 0.75rem; backdrop-filter: blur(20px); min-height: 44px;
+        }
+        .nav-tab-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.08); border-color: var(--border-gold); transform: translateX(4px); }
+        .nav-tab-btn.active { color: #000; background: var(--gold-gradient); font-weight: 900; box-shadow: 0 8px 30px var(--gold-glow); }
+
+        .content { flex: 1; padding: 2.25rem; overflow-y: auto; }
+
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+        .stat-card {
+            background: var(--surface-glass); border: 1.5px solid var(--border-glass); padding: 1.5rem; border-radius: 24px;
+            backdrop-filter: blur(35px) saturate(180%); -webkit-backdrop-filter: blur(35px) saturate(180%);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 15px 45px rgba(0,0,0,0.7);
+        }
+        .stat-title { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 900; letter-spacing: 0.08em; }
+        .stat-val { font-size: 1.85rem; font-weight: 900; color: #fff; margin-top: 0.35rem; }
+
+        .card-box {
+            background: var(--surface-glass); border: 1.5px solid var(--border-glass); padding: 1.75rem; border-radius: 24px;
+            backdrop-filter: blur(35px) saturate(180%); -webkit-backdrop-filter: blur(35px) saturate(180%);
+            margin-bottom: 2rem; box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 20px 50px rgba(0,0,0,0.75);
+        }
+
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(30px); z-index: 3000; display: none; align-items: center; justify-content: center; padding: 1rem; }
+        .modal-overlay.active { display: flex; }
+        .modal-card { background: rgba(12,12,20,0.95); border: 2px solid var(--border-gold); border-radius: 28px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; padding: 2rem 1.5rem; box-shadow: 0 30px 100px rgba(0,0,0,0.98), 0 0 50px var(--gold-glow); position: relative; backdrop-filter: blur(40px); }
+        .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--text-muted); font-size: 1.6rem; cursor: pointer; }
+
+        /* Chat */
+        .chat-box { height: 380px; background: rgba(0,0,0,0.7); border: 1.5px solid var(--border-gold); border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; backdrop-filter: blur(25px); }
+        .chat-msgs { flex: 1; padding: 1.15rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.88rem; }
+        .chat-msg.user { align-self: flex-end; background: var(--gold-gradient); color: #000; font-weight: 900; padding: 10px 15px; border-radius: 14px; max-width: 88%; }
+        .chat-msg.ai { align-self: flex-start; background: rgba(255,255,255,0.08); color: #fff; padding: 11px 16px; border-radius: 14px; max-width: 90%; backdrop-filter: blur(20px); border: 1px solid var(--border-glass); }
+
+        .paywall-card {
+            background: var(--surface-glass); border: 2px solid var(--border-gold); border-radius: 28px; padding: 2.5rem 1.75rem;
+            backdrop-filter: blur(40px); box-shadow: 0 30px 90px rgba(0,0,0,0.95), 0 0 50px var(--gold-glow);
+            text-align: center; margin: 1rem 0;
+        }
+
+        /* FULL MOBILE ADAPTIVE RESPONSIVE CSS */
+        @media (max-width: 800px) {
+            .nav-header { padding: 0.75rem 1rem; }
+            .logo { font-size: 1.1rem; gap: 0.5rem; }
+            .logo img { width: 36px; height: 36px; }
+            
+            .dash-layout { flex-direction: column; }
+            .sidebar { width: 100%; flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1.5px solid var(--border-glass); padding: 0.65rem; gap: 0.5rem; -webkit-overflow-scrolling: touch; }
+            .nav-tab-btn { padding: 0.65rem 1rem; font-size: 0.82rem; min-height: 38px; border-radius: 12px; }
+            .content { padding: 1.25rem 0.85rem; }
+            
+            .grid-4 { grid-template-columns: repeat(2, 1fr); gap: 0.85rem; }
+            .stat-card { padding: 1.15rem 0.9rem; border-radius: 18px; }
+            .stat-val { font-size: 1.5rem; }
+
+            .card-box { padding: 1.25rem 1rem; border-radius: 20px; }
+            .modal-card { max-width: 94vw; padding: 1.5rem 1rem; }
+        }
+
+        @media (max-width: 480px) {
+            .grid-4 { grid-template-columns: 1fr; }
+        }
+    </style>
+    <script src="db_manager.js"></script>
+</head>
+<body>
+
+    <div class="liquid-orb-1"></div>
+    <div class="liquid-orb-2"></div>
+
+    <header class="nav-header">
+        <a href="index.html" class="logo">
+            <img src="profile.png" alt="@rishutrains" onerror="this.src='https://via.placeholder.com/40/ffd700/000?text=RT'">
+            <span>@rishutrains VIP Suite</span>
+        </a>
+        <div style="display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap;">
+            <span style="font-size: 0.82rem; font-weight: 900; color: var(--gold-primary);" id="user-name">Client</span>
+            <button class="btn-pro" style="padding: 0.4rem 0.75rem; font-size: 0.75rem; background: rgba(255,215,0,0.15); color: var(--gold-primary);" onclick="switchClientAccount()">Switch Account 🔄</button>
+            <button class="btn-pro btn-danger" style="padding: 0.4rem 0.75rem; font-size: 0.75rem;" onclick="handleLogout()" aria-label="Logout Account">Logout 🚪</button>
+        </div>
+    </header>
+
+    <div class="dash-layout">
+        <aside class="sidebar">
+            <button class="nav-tab-btn active" onclick="showTab('overview', this)">📊 Overview</button>
+            <button class="nav-tab-btn" onclick="showTab('profile', this)">👤 Profile</button>
+            <button class="nav-tab-btn" onclick="showTab('membership', this)">💳 Membership</button>
+            <button class="nav-tab-btn" onclick="showTab('workout', this)">🏋️ Workout & Progress</button>
+            <button class="nav-tab-btn" onclick="showTab('diet', this)">🥗 Macro Diet</button>
+            <button class="nav-tab-btn" onclick="showTab('progress', this)">📈 Weight Tracker</button>
+            <button class="nav-tab-btn" onclick="showTab('ai-coach', this)">🤖 AI Coach</button>
+            <button class="nav-tab-btn" style="color: #ff4757; background: rgba(255, 71, 87, 0.15); border-color: rgba(255, 71, 87, 0.4);" onclick="handleLogout()">🚪 Logout</button>
+        </aside>
+
+        <main class="content">
+            <!-- TAB: OVERVIEW -->
+            <div id="tab-overview" class="tab-pane">
+                <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.25rem;">Client Transformation Dashboard 👋</h2>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">VIP Coaching plan assigned by Coach Rishav Dhiman (@rishutrains)</p>
+
+                <div class="grid-4">
+                    <div class="stat-card">
+                        <div class="stat-title">Membership Status</div>
+                        <div class="stat-val" id="dash-status" style="color: var(--gold-primary);">INACTIVE</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Daily Calorie Goal</div>
+                        <div class="stat-val" id="dash-calories">2,200 <span style="font-size:0.75rem; color:var(--text-muted);">kcal</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Daily Protein Target</div>
+                        <div class="stat-val" id="dash-protein" style="color: var(--gold-primary);">150 <span style="font-size:0.75rem; color:var(--text-muted);">g</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Completed Workouts</div>
+                        <div class="stat-val" id="dash-workouts-count" style="color: var(--color-success);">0 <span style="font-size:0.75rem; color:var(--text-muted);">Done</span></div>
+                    </div>
+                </div>
+
+                <!-- PAYWALL BANNER IF INACTIVE -->
+                <div id="overview-paywall-banner" style="display:none;" class="paywall-card">
+                    <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🔒</div>
+                    <h3 style="font-size: 1.4rem; font-weight: 900; color: var(--gold-primary); margin-bottom: 0.35rem;">Unlock Premium VIP Coaching</h3>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); max-width: 580px; margin: 0 auto 1.25rem;">Your membership status is currently <strong>INACTIVE / PENDING APPROVAL</strong>. Subscribe to Pro Tier (₹699/mo) to unlock your custom workout program, macro meal plan, and 24/7 AI coach access!</p>
+                    <button class="btn-pro btn-gold" onclick="openPaymentModal('Pro Tier (Best Value)', '699')">Upgrade Now (₹699) 🚀</button>
+                </div>
+
+                <div class="card-box">
+                    <h3 style="font-size: 1.2rem; font-weight: 900; color: var(--gold-primary); margin-bottom: 0.6rem;">Coach Rishav's Instructions 📝</h3>
+                    <p id="dash-notes" style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">Follow your daily protein targets and log your morning body weight weekly.</p>
+                </div>
+            </div>
+
+            <!-- TAB: PROFILE -->
+            <div id="tab-profile" class="tab-pane" style="display: none;">
+                <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 1.5rem;">My Client Profile 👤</h2>
+                <div class="card-box" style="max-width: 600px;">
+                    <div style="display: flex; gap: 1.5rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                        <div style="width: 80px; height: 80px; border-radius: 50%; border: 2.5px solid var(--gold-primary); background: rgba(255,215,0,0.15); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 900; color: var(--gold-primary);">
+                            👤
+                        </div>
+                        <div>
+                            <h3 id="prof-name" style="font-size: 1.3rem; font-weight: 900; color: #fff;">Client</h3>
+                            <p id="prof-email" style="font-size: 0.85rem; color: var(--text-muted);">client@rishutrains.com</p>
+                            <span id="prof-status-pill" class="pill-badge" style="margin-top: 0.4rem; display: inline-block;">STATUS: INACTIVE</span>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="background: rgba(0,0,0,0.4); padding: 0.85rem 1rem; border-radius: 14px; border: 1px solid var(--border-glass);">
+                            <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase;">User ID</div>
+                            <div id="prof-id" style="font-weight: 900; color: var(--gold-primary); font-family: monospace;">RT-101</div>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.4); padding: 0.85rem 1rem; border-radius: 14px; border: 1px solid var(--border-glass);">
+                            <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase;">Phone Number</div>
+                            <div id="prof-phone" style="font-weight: 900; color: #fff;">Not Set</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: MEMBERSHIP -->
+            <div id="tab-membership" class="tab-pane" style="display: none;">
+                <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.25rem;">Membership & Plan Upgrades 💳</h2>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Manage your active tier or upgrade to VIP Coaching.</p>
+
+                <div class="card-box" style="margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 900;">Active Membership Plan</div>
+                            <h3 id="mem-plan-name" style="font-size: 1.5rem; font-weight: 900; color: var(--gold-primary); margin: 0.2rem 0;">No Active Membership</h3>
+                            <p id="mem-plan-desc" style="font-size: 0.85rem; color: var(--text-muted);">Submit UPI Payment Proof below to activate your plan.</p>
+                        </div>
+                        <div id="mem-action-area">
+                            <button class="btn-pro btn-gold" onclick="openPaymentModal('Pro Tier (Best Value)', '699')">Upgrade Plan (₹699) 🚀</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
+                    <div class="card-box" style="margin-bottom: 0;">
+                        <span style="font-size: 0.72rem; font-weight: 900; color: var(--gold-primary);">STARTER PLAN</span>
+                        <div style="font-size: 1.8rem; font-weight: 900; margin: 0.4rem 0;">₹499 <small style="font-size: 0.8rem; color: var(--text-muted);">/mo</small></div>
+                        <button class="btn-pro" style="width: 100%; justify-content: center; margin-top: 0.85rem;" onclick="openPaymentModal('Starter Plan', '499')">Select Starter 💳</button>
+                    </div>
+                    <div class="card-box" style="margin-bottom: 0; border-color: var(--gold-primary); box-shadow: 0 0 30px var(--gold-glow);">
+                        <span style="font-size: 0.72rem; font-weight: 900; color: var(--gold-primary);">PRO TIER (BEST VALUE)</span>
+                        <div style="font-size: 1.8rem; font-weight: 900; margin: 0.4rem 0; color: var(--gold-primary);">₹699 <small style="font-size: 0.8rem; color: var(--text-muted);">/mo</small></div>
+                        <button class="btn-pro btn-gold" style="width: 100%; justify-content: center; margin-top: 0.85rem;" onclick="openPaymentModal('Pro Tier (Best Value)', '699')">Select Pro (₹699) 🚀</button>
+                    </div>
+                    <div class="card-box" style="margin-bottom: 0;">
+                        <span style="font-size: 0.72rem; font-weight: 900; color: var(--gold-primary);">ELITE VIP TIER</span>
+                        <div style="font-size: 1.8rem; font-weight: 900; margin: 0.4rem 0;">₹999 <small style="font-size: 0.8rem; color: var(--text-muted);">/mo</small></div>
+                        <button class="btn-pro" style="width: 100%; justify-content: center; margin-top: 0.85rem;" onclick="openPaymentModal('Elite VIP Tier', '999')">Select Elite 👑</button>
+                    </div>
+                </div>
+
+                <div class="card-box">
+                    <h3 style="font-size: 1.1rem; font-weight: 900; color: #fff; margin-bottom: 1rem;">Submitted Payment Proof History</h3>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead><tr><th>TxID</th><th>Plan</th><th>Amount</th><th>UTR Reference</th><th>Status</th></tr></thead>
+                            <tbody id="client-payments-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: WORKOUT -->
+            <div id="tab-workout" class="tab-pane" style="display: none;">
+                <div id="workout-content-area"></div>
+            </div>
+
+            <!-- TAB: MACRO DIET -->
+            <div id="tab-diet" class="tab-pane" style="display: none;">
+                <div id="diet-content-area"></div>
+            </div>
+
+            <!-- TAB: WEIGHT TRACKER -->
+            <div id="tab-progress" class="tab-pane" style="display: none;">
+                <div id="progress-content-area"></div>
+            </div>
+
+            <!-- TAB: AI COACH -->
+            <div id="tab-ai-coach" class="tab-pane" style="display: none;">
+                <div id="aicoach-content-area"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: SUBMIT UPI PAYMENT PROOF -->
+    <div id="payment-modal" class="modal-overlay">
+        <div class="modal-card">
+            <button class="modal-close" onclick="closeModal('payment-modal')">&times;</button>
+            <h3 style="font-size: 1.35rem; font-weight: 900; text-align: center; color: var(--gold-primary);">Instant UPI Payment Proof</h3>
+            <p style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Scan QR code or use UPI ID to complete payment.</p>
+
+            <div style="background: rgba(0,0,0,0.6); border: 1.5px solid var(--border-gold); border-radius: 18px; padding: 1.15rem; text-align: center; margin: 1.15rem 0;">
+                <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Official UPI ID</div>
+                <div style="font-size: 1.15rem; font-weight: 900; color: var(--gold-primary); margin: 0.2rem 0;">rishudhiman@upi</div>
+                <div style="font-size: 0.78rem; color: #10b981;">(Accepts GPay, PhonePe, Paytm, BHIM)</div>
+            </div>
+
+            <form onsubmit="handlePaymentSubmit(event)">
+                <input type="hidden" id="pay-plan-name" value="Pro Tier (Best Value)">
+                <input type="hidden" id="pay-plan-amount" value="699">
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display:block; font-size:0.75rem; color:var(--gold-primary); font-weight:900; text-transform:uppercase; margin-bottom:0.4rem;">Selected Plan</label>
+                    <input type="text" id="pay-plan-display" readonly style="width:100%; padding:0.85rem 1.1rem; background:#000; border:1.5px solid var(--border-gold); color:var(--gold-primary); font-weight:900; border-radius:12px; outline:none;">
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display:block; font-size:0.75rem; color:var(--gold-primary); font-weight:900; text-transform:uppercase; margin-bottom:0.4rem;">12-Digit UTR / Transaction ID</label>
+                    <input type="text" id="pay-utr" style="width:100%; padding:0.85rem 1.1rem; background:#000; border:1.5px solid var(--border-gold); color:#fff; border-radius:12px; outline:none;" required placeholder="e.g. 324109847192">
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display:block; font-size:0.75rem; color:var(--gold-primary); font-weight:900; text-transform:uppercase; margin-bottom:0.4rem;">Upload Payment Screenshot Proof</label>
+                    <input type="file" id="pay-file" accept="image/*" style="width:100%; padding:0.75rem; background:#000; border:1.5px solid var(--border-gold); color:#fff; border-radius:12px; outline:none;" required>
+                </div>
+
+                <button type="submit" id="pay-submit-btn" class="btn-pro btn-gold" style="width: 100%; padding: 0.95rem; justify-content: center;">Submit Payment Proof 🚀</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FLOATING AI ASSISTANT -->
+    <div id="ai-widget-container" style="position: fixed; bottom: 15px; right: 15px; z-index: 9999;">
+        <button id="ai-widget-toggle" onclick="toggleAIChatWidget()" style="background: var(--gold-gradient); color: #000; border: none; padding: 12px 18px; border-radius: 35px; font-weight: 900; font-size: 0.88rem; cursor: pointer; box-shadow: 0 10px 35px var(--gold-glow); display: flex; align-items: center; gap: 0.5rem;">
+            🤖 AI Assistant
+        </button>
+        <div id="ai-widget-box" style="display: none; width: 320px; height: 400px; max-width: 90vw; background: rgba(18, 18, 28, 0.95); border: 2px solid var(--gold-primary); border-radius: 22px; position: absolute; bottom: 55px; right: 0; flex-direction: column; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.95), 0 0 30px var(--gold-glow); backdrop-filter: blur(35px);">
+            <div style="background: #09090e; padding: 14px 16px; border-bottom: 1.5px solid var(--border-gold); display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 0.55rem; font-weight: 900; font-size: 0.88rem; color: var(--gold-primary);">
+                    <span>🤖</span> Coach Rishav AI Assistant
+                </div>
+                <button onclick="toggleAIChatWidget()" style="background: none; border: none; color: #a1a1aa; font-size: 1.3rem; cursor: pointer;">&times;</button>
+            </div>
+            <div id="ai-widget-msgs" style="flex: 1; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.85rem;">
+                <div style="align-self: flex-start; background: rgba(255,255,255,0.08); color: #fff; padding: 10px 14px; border-radius: 12px; max-width: 88%;">
+                    👋 Hi! Ask me about Coach Rishav's workout splits, protein targets, or membership plans!
+                </div>
+            </div>
+            <div style="padding: 10px; border-top: 1.5px solid var(--border-gold); display: flex; gap: 0.45rem; background: #07070b;">
+                <input type="text" id="ai-widget-input" placeholder="Ask AI Assistant..." style="flex: 1; padding: 9px 12px; background: #000; border: 1.5px solid var(--border-gold); border-radius: 8px; color: #fff; font-size: 0.82rem; outline: none;" onkeydown="if(event.key==='Enter') sendWidgetAIChat()">
+                <button onclick="sendWidgetAIChat()" style="background: var(--gold-gradient); color: #000; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 900; font-size: 0.82rem; cursor: pointer;">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function escapeHTML(str) {
+            return String(str || '').replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        const sessionUser = JSON.parse(localStorage.getItem('rt_logged_user'));
+        if (!sessionUser) {
+            alert('🔒 Access Denied! Please login to access your Client Dashboard.');
+            window.location.href = 'login.html';
+        }
+
+        let loggedUser = sessionUser;
+
+        function fetchLatestUserData() {
+            const usersDB = JSON.parse(localStorage.getItem('rt_users_db')) || [];
+            const found = usersDB.find(u => u.email.toLowerCase() === (sessionUser.email || '').toLowerCase() || u.userId === sessionUser.userId);
+            if (found) loggedUser = found;
+
+            if (!loggedUser.completedWorkouts) loggedUser.completedWorkouts = [];
+            localStorage.setItem('rt_logged_user', JSON.stringify(loggedUser));
+
+            renderDashboardInfo();
+            renderClientPaymentHistory();
+            renderPremiumTabsContent();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchLatestUserData();
+            setInterval(fetchLatestUserData, 4000);
+        });
+
+        function renderDashboardInfo() {
+            document.getElementById('user-name').textContent = loggedUser.name || 'Client';
+            document.getElementById('prof-name').textContent = loggedUser.name || 'Client';
+            document.getElementById('prof-email').textContent = loggedUser.email || '';
+            document.getElementById('prof-id').textContent = loggedUser.userId || 'RT-101';
+            document.getElementById('prof-phone').textContent = loggedUser.phone || 'Not Set';
+
+            const status = loggedUser.membershipStatus || 'INACTIVE';
+            const statusEl = document.getElementById('dash-status');
+            statusEl.textContent = status;
+            statusEl.style.color = status === 'ACTIVE' ? '#10b981' : '#ff4757';
+
+            const profPill = document.getElementById('prof-status-pill');
+            profPill.textContent = `STATUS: ${status}`;
+            profPill.style.color = status === 'ACTIVE' ? '#10b981' : '#ff4757';
+
+            document.getElementById('dash-calories').innerHTML = `${loggedUser.calories || 2200} <span style="font-size:0.75rem; color:var(--text-muted);">kcal</span>`;
+            document.getElementById('dash-protein').innerHTML = `${loggedUser.protein || 150} <span style="font-size:0.75rem; color:var(--text-muted);">g</span>`;
+            document.getElementById('dash-workouts-count').innerHTML = `${(loggedUser.completedWorkouts || []).length} <span style="font-size:0.75rem; color:var(--text-muted);">Done</span>`;
+            document.getElementById('dash-notes').textContent = loggedUser.notes || "Follow your daily protein targets and log your morning body weight weekly.";
+
+            const banner = document.getElementById('overview-paywall-banner');
+            if (status !== 'ACTIVE') {
+                banner.style.display = 'block';
+            } else {
+                banner.style.display = 'none';
+            }
+
+            const memName = document.getElementById('mem-plan-name');
+            const memDesc = document.getElementById('mem-plan-desc');
+            const memAction = document.getElementById('mem-action-area');
+
+            if (status === 'ACTIVE') {
+                memName.textContent = loggedUser.activePlan || 'Pro Tier Member (Active)';
+                memDesc.textContent = '✓ Active VIP Membership. Full access unlocked to custom diet & workouts.';
+                memAction.innerHTML = `<button class="btn-pro btn-danger" onclick="cancelSubscription()">Cancel Subscription ❌</button>`;
+            } else {
+                memName.textContent = 'No Active Membership';
+                memDesc.textContent = 'Submit UPI Payment Proof below to activate your plan.';
+                memAction.innerHTML = `<button class="btn-pro btn-gold" onclick="openPaymentModal('Pro Tier (Best Value)', '699')">Upgrade Plan (₹699) 🚀</button>`;
+            }
+        }
+
+        function switchClientAccount() {
+            localStorage.removeItem('rt_logged_user');
+            window.location.href = 'login.html';
+        }
+
+        function toggleWorkoutCompletion(workoutId, workoutName) {
+            if (!loggedUser.completedWorkouts) loggedUser.completedWorkouts = [];
+            const idx = loggedUser.completedWorkouts.findIndex(w => w.id === workoutId);
+            
+            if (idx === -1) {
+                loggedUser.completedWorkouts.push({
+                    id: workoutId,
+                    name: workoutName,
+                    completedAt: new Date().toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })
+                });
+                alert(`🎉 Workout marked as COMPLETED: ${workoutName}`);
+            } else {
+                loggedUser.completedWorkouts.splice(idx, 1);
+                alert(`Workout status updated to Pending: ${workoutName}`);
+            }
+
+            const users = JSON.parse(localStorage.getItem('rt_users_db')) || [];
+            const userIdx = users.findIndex(u => u.userId === loggedUser.userId || u.email.toLowerCase() === loggedUser.email.toLowerCase());
+            if (userIdx !== -1) {
+                users[userIdx].completedWorkouts = loggedUser.completedWorkouts;
+                localStorage.setItem('rt_users_db', JSON.stringify(users));
+            }
+            localStorage.setItem('rt_logged_user', JSON.stringify(loggedUser));
+
+            renderDashboardInfo();
+            renderPremiumTabsContent();
+        }
+
+        function renderPremiumTabsContent() {
+            const isApprovedActive = loggedUser.membershipStatus === 'ACTIVE';
+
+            const paywallHTML = `
+                <div class="paywall-card">
+                    <div style="font-size: 2.8rem; margin-bottom: 0.6rem;">🔒</div>
+                    <h2 style="font-size: 1.6rem; font-weight: 900; color: var(--gold-primary); margin-bottom: 0.4rem;">Unlock Premium VIP Coaching</h2>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); max-width: 580px; margin: 0 auto 1.5rem; line-height: 1.6;">
+                        This feature requires an <strong>ACTIVE, Admin-Approved Membership</strong>. Upgrade to Pro Tier (₹699/mo) to unlock your custom workout program, macro meal plan, weight progress tracker, and 24/7 AI Fitness Coach!
+                    </p>
+                    <div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+                        <button class="btn-pro" onclick="openPaymentModal('Starter Plan', '499')">Starter Plan (₹499)</button>
+                        <button class="btn-pro btn-gold" onclick="openPaymentModal('Pro Tier (Best Value)', '699')">Pro Tier (₹699) 🚀</button>
+                        <button class="btn-pro" onclick="openPaymentModal('Elite VIP Tier', '999')">Elite VIP (₹999)</button>
+                    </div>
+                    <p style="font-size: 0.78rem; color: var(--gold-light);">⚡ Instant Verification: Submit your payment UTR screenshot for immediate approval by Coach Rishav Dhiman.</p>
+                </div>
+            `;
+
+            // WORKOUT TAB
+            const workoutDiv = document.getElementById('workout-content-area');
+            if (isApprovedActive) {
+                const completedList = loggedUser.completedWorkouts || [];
+                const isW1Done = completedList.some(w => w.id === 'w1');
+                const isW2Done = completedList.some(w => w.id === 'w2');
+
+                workoutDiv.innerHTML = `
+                    <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.25rem;">Customized Workout Program 🏋️</h2>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Assigned Split: ${escapeHTML(loggedUser.workoutSplit || 'Push Pull Legs')} • Completed: ${completedList.length} Workouts</p>
+
+                    <div class="card-box" style="border-color:${isW1Done?'#10b981':'var(--border-glass)'};">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
+                            <h3 style="color:var(--gold-primary); font-size:1.15rem;">DAY 1 — PUSH (Chest, Shoulders, Triceps)</h3>
+                            <button class="btn-pro" style="padding:0.4rem 0.85rem; font-size:0.78rem; background:${isW1Done?'rgba(16,185,129,0.25)':'rgba(255,255,255,0.06)'}; color:${isW1Done?'#10b981':'#fff'}; border-color:${isW1Done?'#10b981':'var(--border-glass)'};" onclick="toggleWorkoutCompletion('w1', 'DAY 1 — PUSH')">
+                                ${isW1Done ? '✓ Completed' : 'Mark Completed ⚡'}
+                            </button>
+                        </div>
+                        <p style="font-size:0.88rem; color:#fff; line-height:1.7;">
+                            1. Incline Dumbbell Press — 4 sets x 8-10 reps<br>
+                            2. Flat Barbell Bench Press — 3 sets x 8-10 reps<br>
+                            3. Dumbbell Shoulder Press — 4 sets x 10-12 reps<br>
+                            4. Cable Lateral Raises — 4 sets x 12-15 reps<br>
+                            5. Tricep Rope Pushdowns — 4 sets x 12-15 reps
+                        </p>
+                    </div>
+
+                    <div class="card-box" style="border-color:${isW2Done?'#10b981':'var(--border-glass)'};">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
+                            <h3 style="color:var(--gold-primary); font-size:1.15rem;">DAY 2 — PULL (Back, Rear Delts, Biceps)</h3>
+                            <button class="btn-pro" style="padding:0.4rem 0.85rem; font-size:0.78rem; background:${isW2Done?'rgba(16,185,129,0.25)':'rgba(255,255,255,0.06)'}; color:${isW2Done?'#10b981':'#fff'}; border-color:${isW2Done?'#10b981':'var(--border-glass)'};" onclick="toggleWorkoutCompletion('w2', 'DAY 2 — PULL')">
+                                ${isW2Done ? '✓ Completed' : 'Mark Completed ⚡'}
+                            </button>
+                        </div>
+                        <p style="font-size:0.88rem; color:#fff; line-height:1.7;">
+                            1. Lat Pulldowns — 4 sets x 10-12 reps<br>
+                            2. Seated Cable Rows — 4 sets x 10-12 reps<br>
+                            3. Dumbbell Shrugs — 3 sets x 12 reps<br>
+                            4. Incline Dumbbell Bicep Curls — 4 sets x 12 reps
+                        </p>
+                    </div>
+                `;
+            } else {
+                workoutDiv.innerHTML = paywallHTML;
+            }
+
+            // DIET TAB
+            const dietDiv = document.getElementById('diet-content-area');
+            if (isApprovedActive) {
+                dietDiv.innerHTML = `
+                    <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.25rem;">Personalized Macro Meal Plan 🥗</h2>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Daily Target: ${loggedUser.calories || 2200} kcal | ${loggedUser.protein || 150}g Protein</p>
+                    <div class="card-box">
+                        <h3 style="color:var(--gold-primary); font-size:1.15rem; margin-bottom:0.75rem;">MEAL 1 — BREAKFAST (High Protein)</h3>
+                        <p style="font-size:0.88rem; color:#fff; line-height:1.6;">Oats 60g + 1 Scoop Whey Protein + 10 Almonds + 4 Whole Eggs / 100g Paneer</p>
+                    </div>
+                    <div class="card-box">
+                        <h3 style="color:var(--gold-primary); font-size:1.15rem; margin-bottom:0.75rem;">MEAL 2 — LUNCH (Flexible Indian Meal)</h3>
+                        <p style="font-size:0.88rem; color:#fff; line-height:1.6;">2 Rotis / 150g Cooked Rice + 150g Chicken Breast or 150g Paneer + Green Salad + Dal</p>
+                    </div>
+                `;
+            } else {
+                dietDiv.innerHTML = paywallHTML;
+            }
+
+            // PROGRESS TAB
+            const progressDiv = document.getElementById('progress-content-area');
+            if (isApprovedActive) {
+                progressDiv.innerHTML = `
+                    <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.25rem;">Body Weight Tracker 📈</h2>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Log your morning weight to track progress.</p>
+                    <div class="card-box">
+                        <div style="display:flex; gap:0.75rem; max-width:400px;">
+                            <input type="number" id="weight-val" step="0.1" placeholder="Enter Weight (kg)" style="flex:1; padding:0.85rem 1.1rem; background:#000; border:1.5px solid var(--border-gold); color:#fff; border-radius:12px; outline:none;">
+                            <button class="btn-pro btn-gold" onclick="saveWeight()">Log Weight ✓</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                progressDiv.innerHTML = paywallHTML;
+            }
+
+            // AI COACH TAB
+            const aicoachDiv = document.getElementById('aicoach-content-area');
+            if (isApprovedActive) {
+                aicoachDiv.innerHTML = `
+                    <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.25rem;">24/7 AI Fitness Coach 🤖</h2>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Instant answers for exercise form, food swaps, and recovery.</p>
+                    <div class="chat-box">
+                        <div id="chat-msgs" class="chat-msgs">
+                            <div class="chat-msg ai">👋 Hello ${escapeHTML(loggedUser.name)}! I am Coach Rishav's AI Assistant. How can I help you today?</div>
+                        </div>
+                        <div style="padding: 10px; border-top: 1.5px solid var(--border-gold); display: flex; gap: 0.55rem; background: #07070b;">
+                            <input type="text" id="chat-input" placeholder="Type your fitness query..." style="flex:1; padding:10px 14px; background:#000; border:1.5px solid var(--border-gold); border-radius:10px; color:#fff; font-size:0.88rem; outline:none;" onkeydown="if(event.key==='Enter') sendChat()">
+                            <button onclick="sendChat()" class="btn-pro btn-gold" style="padding:7px 16px;">Send</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                aicoachDiv.innerHTML = paywallHTML;
+            }
+        }
+
+        function cancelSubscription() {
+            if (confirm("Are you sure you want to cancel your active VIP subscription?")) {
+                loggedUser.membershipStatus = 'CANCELLED';
+                loggedUser.activePlan = 'None';
+                
+                const users = JSON.parse(localStorage.getItem('rt_users_db')) || [];
+                const idx = users.findIndex(u => u.userId === loggedUser.userId || u.email.toLowerCase() === loggedUser.email.toLowerCase());
+                if (idx !== -1) {
+                    users[idx].membershipStatus = 'CANCELLED';
+                    users[idx].activePlan = 'None';
+                    localStorage.setItem('rt_users_db', JSON.stringify(users));
+                }
+                localStorage.setItem('rt_logged_user', JSON.stringify(loggedUser));
+                
+                alert("❌ Membership cancelled.");
+                renderDashboardInfo();
+                renderPremiumTabsContent();
+            }
+        }
+
+        function renderClientPaymentHistory() {
+            const payments = JSON.parse(localStorage.getItem('rt_payments_db')) || [];
+            const myPayments = payments.filter(p => p.userId === loggedUser.userId || p.userEmail.toLowerCase() === (loggedUser.email || '').toLowerCase());
+
+            const tbody = document.getElementById('client-payments-tbody');
+            if (myPayments.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No payment records submitted yet.</td></tr>`;
+            } else {
+                tbody.innerHTML = myPayments.map(p => `
+                    <tr>
+                        <td><code>${escapeHTML(p.txId)}</code></td>
+                        <td>${escapeHTML(p.plan)}</td>
+                        <td><strong style="color:var(--gold-primary);">₹${escapeHTML(p.amount)}</strong></td>
+                        <td><code>${escapeHTML(p.utr)}</code></td>
+                        <td>
+                            <span class="pill-badge" style="color:${p.status==='APPROVED'?'#10b981':(p.status==='REJECTED'?'#ff4757':'#ffa502')}; border-color:${p.status==='APPROVED'?'#10b981':'#ffa502'};">
+                                ${escapeHTML(p.status)}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function openPaymentModal(planName, amount) {
+            document.getElementById('pay-plan-name').value = planName;
+            document.getElementById('pay-plan-amount').value = amount;
+            document.getElementById('pay-plan-display').value = `${planName} — ₹${amount}`;
+            document.getElementById('payment-modal').classList.add('active');
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        function compressImageFile(file, maxWidth, quality, callback) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let w = img.width;
+                    let h = img.height;
+                    if (w > maxWidth) {
+                        h = Math.round((h * maxWidth) / w);
+                        w = maxWidth;
+                    }
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                    callback(compressedDataUrl);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function handlePaymentSubmit(e) {
+            e.preventDefault();
+            const plan = document.getElementById('pay-plan-name').value;
+            const amount = document.getElementById('pay-plan-amount').value;
+            const utr = document.getElementById('pay-utr').value.trim();
+            const fileInput = document.getElementById('pay-file');
+            const file = fileInput.files[0];
+
+            const submitBtn = document.getElementById('pay-submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing & Submitting Proof... ⏳';
+
+            const processSubmission = (proofBase64) => {
+                const txPayload = {
+                    txId: 'TXN-' + Math.floor(100000 + Math.random() * 900000),
+                    userId: loggedUser.userId,
+                    userName: loggedUser.name,
+                    userEmail: loggedUser.email,
+                    plan: plan,
+                    amount: amount,
+                    utr: utr,
+                    proofImage: proofBase64 || '',
+                    status: 'PENDING',
+                    submittedAt: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+                };
+
+                try {
+                    const payments = JSON.parse(localStorage.getItem('rt_payments_db')) || [];
+                    payments.unshift(txPayload);
+                    localStorage.setItem('rt_payments_db', JSON.stringify(payments));
+                } catch (quotaErr) {}
+
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Payment Proof 🚀';
+
+                alert(`🎉 Payment Proof Submitted Successfully!\nTransaction UTR: ${utr}\nCoach Rishav Dhiman will verify your uploaded screenshot proof in the Admin Panel and activate your membership.`);
+                closeModal('payment-modal');
+                renderClientPaymentHistory();
+            };
+
+            if (file) {
+                compressImageFile(file, 750, 0.70, function(compressedBase64) {
+                    processSubmission(compressedBase64);
+                });
+            } else {
+                processSubmission('');
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('rt_logged_user');
+            alert('🚪 Logged out successfully!');
+            window.location.href = 'login.html';
+        }
+
+        function showTab(name, btn) {
+            document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+            document.getElementById(`tab-${name}`).style.display = 'block';
+        }
+
+        function saveWeight() {
+            const v = document.getElementById('weight-val').value;
+            if (!v) return;
+            alert(`Weight ${v} kg logged successfully!`);
+            document.getElementById('weight-val').value = '';
+        }
+
+        function toggleAIChatWidget() {
+            const box = document.getElementById('ai-widget-box');
+            box.style.display = box.style.display === 'none' || !box.style.display ? 'flex' : 'none';
+        }
+
+        function sendWidgetAIChat() {
+            const input = document.getElementById('ai-widget-input');
+            const txt = input.value.trim();
+            if (!txt) return;
+            const msgs = document.getElementById('ai-widget-msgs');
+            msgs.innerHTML += `<div style="align-self: flex-end; background: var(--gold-gradient); color: #000; font-weight: 900; padding: 10px 14px; border-radius: 12px; max-width: 85%;">${escapeHTML(txt)}</div>`;
+            input.value = '';
+
+            let reply = "Coach Rishav Dhiman (@rishutrains) offers 100% customized gym & home workout programs with personalized macro diet coaching. Check out our Pro Tier (₹699/mo) for full access!";
+            setTimeout(() => {
+                msgs.innerHTML += `<div style="align-self: flex-start; background: rgba(255,255,255,0.08); color: #fff; padding: 10px 14px; border-radius: 14px; max-width: 88%;">${reply}</div>`;
+                msgs.scrollTop = msgs.scrollHeight;
+            }, 450);
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chat-input');
+            const txt = input.value.trim();
+            if (!txt) return;
+            const msgs = document.getElementById('chat-msgs');
+            msgs.innerHTML += `<div class="chat-msg user">${escapeHTML(txt)}</div>`;
+            input.value = '';
+
+            setTimeout(() => {
+                msgs.innerHTML += `<div class="chat-msg ai">Great question! For progressive overload, increase weight by 2.5kg whenever you hit the top rep target on all sets.</div>`;
+                msgs.scrollTop = msgs.scrollHeight;
+            }, 450);
+        }
+    </script>
+</body>
+</html>

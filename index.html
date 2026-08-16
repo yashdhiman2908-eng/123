@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>@rishutrains | VIP Fitness & Body Transformation Coaching</title>
+    <meta name="description" content="Transform your physique with Rishav Dhiman (@rishutrains). 100% customized gym & home workout routines, personalized macro diet plans, and 1-on-1 coaching.">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Platform-wide Liquid Glass & Responsive Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        /* PAGE SPECIFIC OVERRIDES */
+        .navbar {
+            background: rgba(8, 8, 14, 0.85); backdrop-filter: blur(40px) saturate(190%); -webkit-backdrop-filter: blur(40px) saturate(190%);
+            border-bottom: 1.5px solid var(--border-gold); padding: 0.9rem 2rem;
+            display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 15px 50px rgba(0,0,0,0.95);
+        }
+        .logo { font-size: 1.4rem; font-weight: 900; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 0.9rem; }
+        .logo img { width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid var(--gold-primary); box-shadow: 0 0 30px var(--gold-glow); object-fit: cover; }
+        .logo span { background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.03em; font-weight: 900; }
+
+        /* Transparent Glassmorphic 3-Dots Menu */
+        .menu-dropdown-container { position: relative; display: flex; align-items: center; z-index: 9999; }
+        .dots-btn {
+            background: rgba(255, 215, 0, 0.18); border: 1.5px solid var(--gold-primary);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            color: var(--gold-primary); font-size: 1.5rem; font-weight: 900;
+            width: 44px; height: 44px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 20px var(--gold-glow);
+            outline: none;
+        }
+        .dots-btn:hover, .dots-btn:active {
+            background: var(--gold-gradient); color: #000;
+            box-shadow: 0 0 30px var(--gold-glow); transform: scale(1.08);
+        }
+        .transparent-dropdown {
+            position: absolute; top: 54px; right: 0; width: 250px;
+            background: rgba(8, 8, 14, 0.94); backdrop-filter: blur(40px) saturate(190%); -webkit-backdrop-filter: blur(40px) saturate(190%);
+            border: 1.5px solid var(--border-gold); border-radius: 22px; padding: 0.75rem;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.25), 0 25px 70px rgba(0,0,0,0.98), 0 0 40px var(--gold-glow);
+            display: none; flex-direction: column; gap: 0.45rem; z-index: 99999;
+        }
+        .transparent-dropdown.active { display: flex !important; }
+        .dropdown-item {
+            padding: 0.75rem 1.1rem; border-radius: 14px; color: #fff; font-size: 0.88rem; font-weight: 800;
+            text-decoration: none; display: flex; align-items: center; gap: 0.65rem;
+            transition: all 0.25s ease; background: rgba(255,255,255,0.03);
+        }
+        .dropdown-item:hover, .dropdown-item:active {
+            background: rgba(255, 215, 0, 0.22); color: var(--gold-primary); transform: translateX(4px);
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem; position: relative; z-index: 1; }
+
+        /* Hero Section */
+        .hero { text-align: center; padding: 2.5rem 1rem 3.5rem; }
+        .hero-badge-pill {
+            display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255, 71, 87, 0.18);
+            border: 1.5px solid rgba(255, 71, 87, 0.45); padding: 0.45rem 1.25rem; border-radius: 30px; font-weight: 900;
+            font-size: 0.82rem; color: #ff4757; margin-bottom: 1.25rem; box-shadow: 0 0 20px rgba(255,71,87,0.25);
+        }
+        
+        .badge-row { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .pill-badge {
+            background: rgba(255, 215, 0, 0.12); border: 1px solid var(--border-gold); padding: 0.35rem 0.85rem;
+            border-radius: 20px; font-size: 0.75rem; font-weight: 800; color: var(--gold-primary); backdrop-filter: blur(20px);
+        }
+
+        .hero-title { font-size: 3.4rem; font-weight: 900; line-height: 1.15; letter-spacing: -0.03em; margin-bottom: 1.15rem; }
+        .hero-title span { background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-desc { font-size: 1.08rem; color: var(--text-muted); max-width: 760px; margin: 0 auto 2.25rem; line-height: 1.6; }
+
+        /* LIQUID GLASS CREATOR BOX */
+        .creator-box {
+            background: var(--surface-glass); border: 1.5px solid var(--border-gold); border-radius: 28px; padding: 2rem;
+            backdrop-filter: blur(35px) saturate(180%); -webkit-backdrop-filter: blur(35px) saturate(180%);
+            margin-bottom: 3rem; box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 25px 70px rgba(0,0,0,0.85);
+            display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;
+        }
+        .creator-avatar { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--gold-primary); box-shadow: 0 0 35px var(--gold-glow); object-fit: cover; }
+
+        /* Trust Badges Bar */
+        .trust-bar {
+            display: flex; justify-content: space-around; gap: 1rem; flex-wrap: wrap;
+            background: rgba(255, 215, 0, 0.08); border: 1px solid var(--border-gold); padding: 1rem 1.5rem;
+            border-radius: 20px; margin-bottom: 3.5rem; font-size: 0.88rem; font-weight: 800; color: var(--gold-primary); backdrop-filter: blur(20px);
+        }
+
+        /* LIQUID GLASS STAT CARDS */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 4rem; text-align: center; }
+        .stat-box {
+            background: var(--surface-glass); border: 1.5px solid var(--border-glass); padding: 1.75rem 1rem; border-radius: 24px;
+            backdrop-filter: blur(35px); box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 20px 50px rgba(0,0,0,0.7);
+        }
+        .stat-num { font-size: 2.4rem; font-weight: 900; color: var(--gold-primary); letter-spacing: -0.03em; }
+        .stat-lbl { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-top: 0.35rem; }
+
+        /* Reels Grid */
+        .reels-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 4.5rem; }
+        .reel-card {
+            background: var(--surface-glass); border: 1.5px solid var(--border-glass); border-radius: 24px; overflow: hidden;
+            backdrop-filter: blur(35px); transition: all 0.35s ease; position: relative;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 20px 50px rgba(0,0,0,0.8);
+        }
+        .reel-card:hover { transform: translateY(-7px) scale(1.02); border-color: var(--border-gold); box-shadow: 0 25px 60px rgba(0,0,0,0.9), 0 0 35px var(--gold-glow); }
+        .reel-img { width: 100%; height: 320px; object-fit: cover; }
+        .reel-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.9) 100%); display: flex; flex-direction: column; justify-content: space-between; padding: 1.25rem; }
+        .play-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--gold-primary); color: #000; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; align-self: center; margin-top: 4rem; box-shadow: 0 0 25px var(--gold-glow); }
+
+        /* INTERACTIVE 4-STEP PROTOCOL CARDS WITH EXPANDABLE DETAILS */
+        .protocol-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 4.5rem; }
+        .protocol-card {
+            background: var(--surface-glass); border: 1.5px solid var(--border-glass); padding: 1.85rem; border-radius: 26px;
+            backdrop-filter: blur(35px); transition: all 0.4s var(--apple-curve); position: relative; cursor: pointer;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 20px 50px rgba(0,0,0,0.7);
+        }
+        .protocol-card:hover, .protocol-card.active { transform: translateY(-6px); border-color: var(--border-gold); box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 25px 60px rgba(0,0,0,0.85), 0 0 35px var(--gold-glow); }
+        .step-num { position: absolute; top: 1.25rem; right: 1.25rem; font-size: 2.2rem; font-weight: 900; color: rgba(255, 215, 0, 0.25); }
+
+        .protocol-card .expand-details {
+            max-height: 0; overflow: hidden; opacity: 0; transition: all 0.4s var(--apple-curve);
+            font-size: 0.82rem; color: var(--gold-light); line-height: 1.5; border-top: 1px dashed var(--border-gold);
+            margin-top: 0; padding-top: 0;
+        }
+        .protocol-card:hover .expand-details, .protocol-card.active .expand-details {
+            max-height: 220px; opacity: 1; margin-top: 0.85rem; padding-top: 0.85rem;
+        }
+
+        /* Transformations Grid */
+        .trans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 4.5rem; }
+        .trans-card { background: var(--surface-glass); border: 1.5px solid var(--border-glass); border-radius: 26px; padding: 1.75rem; backdrop-filter: blur(35px); box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 20px 50px rgba(0,0,0,0.7); }
+        .ba-box { display: flex; gap: 0.75rem; margin-bottom: 1rem; }
+        .ba-pill { flex: 1; text-align: center; padding: 0.6rem; border-radius: 12px; font-weight: 900; font-size: 0.88rem; }
+        .ba-before { background: rgba(255, 71, 87, 0.18); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.3); }
+        .ba-after { background: rgba(16, 185, 129, 0.18); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+        /* Pricing Section */
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.75rem; margin-bottom: 4.5rem; }
+        .price-card {
+            background: var(--surface-glass); border: 1.5px solid var(--border-glass); padding: 2.25rem 1.75rem; border-radius: 28px;
+            backdrop-filter: blur(35px); transition: all 0.35s ease; position: relative;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 20px 50px rgba(0,0,0,0.7);
+        }
+        .price-card.featured { border-color: var(--gold-primary); box-shadow: inset 0 1px 1px rgba(255,255,255,0.4), 0 25px 70px rgba(0,0,0,0.9), 0 0 45px var(--gold-glow); }
+        .price-card:hover { transform: translateY(-7px); border-color: var(--border-gold); }
+
+        /* TYPING INDICATOR ANIMATION */
+        .typing-indicator { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; }
+        .typing-indicator span { width: 6px; height: 6px; background: var(--gold-primary); border-radius: 50%; animation: typingPulse 1.4s infinite ease-in-out; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingPulse { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1.2); opacity: 1; } }
+
+        /* Footer */
+        .footer { background: rgba(6,6,10,0.95); border-top: 1.5px solid var(--border-gold); padding: 2.5rem 1.5rem; text-align: center; font-size: 0.88rem; color: var(--text-muted); margin-top: 4rem; }
+
+        /* MOBILE RESPONSIVE MEDIA QUERIES */
+        @media (max-width: 800px) {
+            .navbar { padding: 0.75rem 1rem; }
+            .logo { font-size: 1.15rem; gap: 0.5rem; }
+            .logo img { width: 38px; height: 38px; }
+            
+            #nav-auth-btns { display: none !important; }
+            .menu-dropdown-container { display: flex !important; margin-left: auto; }
+            .dots-btn { width: 44px; height: 44px; font-size: 1.6rem; border: 2px solid var(--gold-primary); background: var(--gold-gradient); color: #000; box-shadow: 0 0 25px var(--gold-glow); }
+            
+            .transparent-dropdown {
+                position: fixed; top: 65px; right: 12px; width: calc(100vw - 24px); max-width: 320px;
+                z-index: 99999; box-shadow: 0 30px 90px rgba(0,0,0,0.99), 0 0 50px var(--gold-glow);
+            }
+
+            .hero-title { font-size: 2.1rem; }
+            .creator-box { flex-direction: column; text-align: center; padding: 1.5rem 1rem; }
+            .badge-row { flex-direction: column; align-items: center; }
+            .trust-bar { flex-direction: column; text-align: center; gap: 0.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="liquid-orb-1"></div>
+    <div class="liquid-orb-2"></div>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo">
+            <img src="profile.png" alt="@rishutrains" onerror="this.src='https://via.placeholder.com/44/ffd700/000?text=RT'">
+            <span>@rishutrains</span>
+        </a>
+
+        <div style="display: flex; gap: 0.65rem; align-items: center;">
+            <div id="nav-auth-btns" style="display: flex; gap: 0.55rem; align-items: center;">
+                <a href="login.html" class="btn-pro" style="padding: 0.55rem 0.95rem; font-size: 0.8rem;">Client Login 🔑</a>
+                <a href="login.html?tab=signup" class="btn-pro btn-gold" style="padding: 0.55rem 0.95rem; font-size: 0.8rem;">Sign Up ✨</a>
+            </div>
+
+            <!-- TRANSPARENT GLASSMORPHIC 3-DOTS MENU (ALWAYS VISIBLE & MOBILE ADAPTIVE) -->
+            <div class="menu-dropdown-container">
+                <button class="dots-btn" id="dots-menu-btn" onclick="toggle3DotsMenu(event)" aria-label="Toggle Navigation Menu">⋮</button>
+                <div class="transparent-dropdown" id="dropdown-menu">
+                    <a href="#reels" class="dropdown-item" onclick="closeDropdown()">🎬 VIRAL REELS</a>
+                    <a href="#system" class="dropdown-item" onclick="closeDropdown()">⚡ THE SYSTEM</a>
+                    <a href="#transformations" class="dropdown-item" onclick="closeDropdown()">🔥 CLIENT TRANSFORMATIONS</a>
+                    <a href="#plans" class="dropdown-item" onclick="closeDropdown()">💳 PRICING & MEMBERSHIPS</a>
+                    <div style="height: 1px; background: var(--border-gold); margin: 0.25rem 0;"></div>
+                    <a href="login.html" class="dropdown-item">🔑 CLIENT LOGIN</a>
+                    <a href="login.html?tab=signup" class="dropdown-item">✨ SIGN UP</a>
+                    <a href="dashboard.html" class="dropdown-item">🚀 MY DASHBOARD</a>
+                    <a href="admin.html" class="dropdown-item" style="color: rgba(255,255,255,0.6);">🔒 RESTRICTED ADMIN</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- TOP LIMITED BATCH PILL & CREATOR BADGES -->
+        <section class="hero">
+            <div class="hero-badge-pill">🔥 LIMITED BATCH | ONLY 5 SPOTS REMAINING THIS MONTH 🔥</div>
+
+            <div class="badge-row">
+                <span class="pill-badge">📍 @RISHUTRAINS | CODE: 7K+ FOLLOWERS</span>
+                <span class="pill-badge">📍 21 | CHD • HP</span>
+                <span class="pill-badge">🔥 4.9/5 RATING | 500+ CLIENTS</span>
+                <span class="pill-badge" style="color:#10b981; border-color:#10b981;">🟢 ONLINE & ACCEPTING CLIENTS</span>
+            </div>
+
+            <h1 class="hero-title">Transform Your Body.<br>Build Your <span>Dream Physique.</span></h1>
+            <p class="hero-desc">100% Customized Online Workout Programs & Macro Diet Coaching by Rishav Dhiman (@rishutrains). Guaranteed fat loss & muscle growth.</p>
+
+            <!-- CREATOR PROFILE CARD -->
+            <div class="creator-box">
+                <img src="profile.png" class="creator-avatar" alt="Rishav Dhiman" onerror="this.src='https://via.placeholder.com/120/ffd700/000?text=RT'">
+                <div style="flex: 1; text-align: left;">
+                    <h3 style="font-size: 1.4rem; font-weight: 900; color: var(--gold-primary);">Rishav Dhiman <small style="font-size: 0.8rem; color: var(--text-muted);">@rishutrains</small></h3>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0.2rem 0 0.6rem;">🏋️ Fitness | Education | Motivation • 👊 Here To Transform</p>
+                    <p style="font-size: 0.85rem; color: var(--gold-light);">🏷️ Discount Codes: <strong>@betteraltindia : RISHU15</strong> | <strong>@bacca_bucci : RISHU</strong></p>
+                    <div style="display: flex; gap: 0.85rem; margin-top: 0.85rem; flex-wrap: wrap;">
+                        <span class="pill-badge">📸 INSTAGRAM: 7K+ FOLLOWERS</span>
+                        <a href="https://youtube.com/@rishutrains?si=TNQIUSoYSr8wC1HK" target="_blank" class="pill-badge" style="color:#ef4444; border-color:#ef4444; text-decoration:none;">▶ YOUTUBE @RISHUTRAINS</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HERO CTA BUTTONS -->
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2.5rem;">
+                <a href="login.html?tab=signup" class="btn-pro btn-gold" style="padding: 1rem 2rem; font-size: 1rem;">⚡ START YOUR TRANSFORMATION NOW (₹699/mo)</a>
+                <a href="https://instagram.com/rishutrains" target="_blank" class="btn-pro" style="padding: 1rem 1.75rem; font-size: 1rem;">👉 FOLLOW @RISHUTRAINS ON IG</a>
+            </div>
+
+            <!-- TRUST BADGES BAR -->
+            <div class="trust-bar">
+                <span>⚡ Instant Verified UPI Payment Approval</span>
+                <span>🥗 100% Tailored Macro Meal Plan</span>
+                <span>🏋️ Guaranteed Physique Results</span>
+            </div>
+
+            <!-- STATS COUNTER GRID -->
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-num">7K+</div>
+                    <div class="stat-lbl">INSTAGRAM FOLLOWERS</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num">2.2M+</div>
+                    <div class="stat-lbl">TOTAL REEL VIEWS</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num">500+</div>
+                    <div class="stat-lbl">BODY TRANSFORMATIONS</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num">98.4%</div>
+                    <div class="stat-lbl">CLIENT SUCCESS RATE</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIRAL REELS GRID -->
+        <section id="reels" style="margin-bottom: 4.5rem;">
+            <h2 style="font-size: 2rem; font-weight: 900; text-align: center; margin-bottom: 0.4rem;">Original <span style="color:var(--gold-primary);">Viral Reels & Covers</span></h2>
+            <p style="color: var(--text-muted); text-align: center; font-size: 0.92rem; margin-bottom: 2.25rem;">Actual trending fitness reels & post covers from Rishav Dhiman (@rishutrains)</p>
+
+            <div class="reels-grid">
+                <div class="reel-card">
+                    <img src="reel1.jpg" class="reel-img" alt="Reel 1" onerror="this.src='https://via.placeholder.com/240x320/ffd700/000?text=Workout+Reel+1'">
+                    <div class="reel-overlay">
+                        <span class="pill-badge" style="align-self:flex-start;">👁️ 2.2M Views</span>
+                        <div class="play-btn">▶</div>
+                        <a href="https://instagram.com/rishutrains" target="_blank" class="btn-pro" style="font-size:0.78rem; padding:0.45rem; justify-content:center;">WATCH REEL ON INSTAGRAM ↗</a>
+                    </div>
+                </div>
+                <div class="reel-card">
+                    <img src="reel2.jpg" class="reel-img" alt="Reel 2" onerror="this.src='https://via.placeholder.com/240x320/ffd700/000?text=Workout+Reel+2'">
+                    <div class="reel-overlay">
+                        <span class="pill-badge" style="align-self:flex-start;">👁️ 1.8M Views</span>
+                        <div class="play-btn">▶</div>
+                        <a href="https://instagram.com/rishutrains" target="_blank" class="btn-pro" style="font-size:0.78rem; padding:0.45rem; justify-content:center;">WATCH REEL ON INSTAGRAM ↗</a>
+                    </div>
+                </div>
+                <div class="reel-card">
+                    <img src="reel3.png" class="reel-img" alt="Reel 3" onerror="this.src='https://via.placeholder.com/240x320/ffd700/000?text=Workout+Reel+3'">
+                    <div class="reel-overlay">
+                        <span class="pill-badge" style="align-self:flex-start;">🔥 Trending Workout</span>
+                        <div class="play-btn">▶</div>
+                        <a href="https://instagram.com/rishutrains" target="_blank" class="btn-pro" style="font-size:0.78rem; padding:0.45rem; justify-content:center;">WATCH REEL ON INSTAGRAM ↗</a>
+                    </div>
+                </div>
+                <div class="reel-card">
+                    <img src="reel4.png" class="reel-img" alt="Reel 4" onerror="this.src='https://via.placeholder.com/240x320/ffd700/000?text=Workout+Reel+4'">
+                    <div class="reel-overlay">
+                        <span class="pill-badge" style="align-self:flex-start;">💪 Mindset Reel</span>
+                        <div class="play-btn">▶</div>
+                        <a href="https://instagram.com/rishutrains" target="_blank" class="btn-pro" style="font-size:0.78rem; padding:0.45rem; justify-content:center;">WATCH REEL ON INSTAGRAM ↗</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- INTERACTIVE 4-STEP TRANSFORMATION PROTOCOL (HOVER DESKTOP / TAP MOBILE) -->
+        <section id="system" style="margin-bottom: 4.5rem;">
+            <h2 style="font-size: 2rem; font-weight: 900; text-align: center; margin-bottom: 0.4rem;">The <span style="color:var(--gold-primary);">4-Step Transformation Protocol</span></h2>
+            <p style="color: var(--text-muted); text-align: center; font-size: 0.92rem; margin-bottom: 2.5rem;">Click or tap any step card below to reveal full detailed coaching breakdown ✨</p>
+
+            <div class="protocol-grid">
+                <div class="protocol-card" onclick="toggleProtocolCard(this)">
+                    <span class="step-num">01</span>
+                    <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">📊</div>
+                    <h3 style="color: var(--gold-primary); font-size: 1.15rem; margin-bottom: 0.4rem;">Macro Audit & Assessment</h3>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Fixed daily calorie, protein, carb & fat targets calculated specifically for your body type and goal.</p>
+                    <div class="expand-details">
+                        ✨ <strong>Full Protocol Breakdown:</strong><br>
+                        • Calculates exact Basal Metabolic Rate (BMR) & TDEE.<br>
+                        • Fixed Protein Target (1.8g - 2.2g per kg bodyweight).<br>
+                        • Weekly weight & waistline progress audits with auto-adjustments.
+                    </div>
+                </div>
+
+                <div class="protocol-card" onclick="toggleProtocolCard(this)">
+                    <span class="step-num">02</span>
+                    <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🏋️</div>
+                    <h3 style="color: var(--gold-primary); font-size: 1.15rem; margin-bottom: 0.4rem;">Progressive Workout Routine</h3>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Tailored Push-Pull-Legs or Upper-Lower split for gym or home with precise sets & reps.</p>
+                    <div class="expand-details">
+                        ✨ <strong>Full Protocol Breakdown:</strong><br>
+                        • Gym & Home dumbbell alternatives included.<br>
+                        • Progressive Overload tracking system.<br>
+                        • Detailed exercise form instructions and rest intervals.
+                    </div>
+                </div>
+
+                <div class="protocol-card" onclick="toggleProtocolCard(this)">
+                    <span class="step-num">03</span>
+                    <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🥗</div>
+                    <h3 style="color: var(--gold-primary); font-size: 1.15rem; margin-bottom: 0.4rem;">Flexible Indian Diet Plan</h3>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Enjoy delicious home foods (Roti, Paneer, Chicken, Oats, Eggs) while staying in your target macro range.</p>
+                    <div class="expand-details">
+                        ✨ <strong>Full Protocol Breakdown:</strong><br>
+                        • 100% Indian vegetarian & non-vegetarian meal plans.<br>
+                        • Flexible food swapping options (Roti, Paneer, Whey, Oats, Eggs).<br>
+                        • Zero starving or extreme unnatural restrictions.
+                    </div>
+                </div>
+
+                <div class="protocol-card" onclick="toggleProtocolCard(this)">
+                    <span class="step-num">04</span>
+                    <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🤖</div>
+                    <h3 style="color: var(--gold-primary); font-size: 1.15rem; margin-bottom: 0.4rem;">24/7 Dashboard & AI Coaching</h3>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Weekly weight logging, progress adjustments, and 24/7 instant AI fitness coach support.</p>
+                    <div class="expand-details">
+                        ✨ <strong>Full Protocol Breakdown:</strong><br>
+                        • Private Client Dashboard access with progress graphs.<br>
+                        • Instant 24/7 AI Fitness Assistant to answer diet & workout queries.<br>
+                        • Direct WhatsApp priority support with Coach Rishav.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CLIENT TRANSFORMATIONS BEFORE / AFTER CARDS -->
+        <section id="transformations" style="margin-bottom: 4.5rem;">
+            <h2 style="font-size: 2rem; font-weight: 900; text-align: center; margin-bottom: 0.4rem;">Client <span style="color:var(--gold-primary);">Transformations</span></h2>
+            <p style="color: var(--text-muted); text-align: center; font-size: 0.92rem; margin-bottom: 2.5rem;">Real results from 500+ clients trained by Rishav Dhiman (@rishutrains)</p>
+
+            <div class="trans-grid">
+                <div class="trans-card">
+                    <div class="ba-box">
+                        <div class="ba-pill ba-before">BEFORE<br>80 kg</div>
+                        <div class="ba-pill ba-after">AFTER<br>74 kg</div>
+                    </div>
+                    <h4 style="color: #fff; font-size: 1.1rem; text-align: center;">Vikram S. (Chandigarh)</h4>
+                    <p style="text-align: center; font-size: 0.78rem; color: var(--gold-primary); margin: 0.25rem 0 0.85rem;">⚡ LOST 6KG FAT IN 12 WEEKS</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic; line-height: 1.5;">"Coach Rishav fixed my macro diet and taught me progressive overload. Reduced my waist size from 36 to 31!"</p>
+                </div>
+                <div class="trans-card">
+                    <div class="ba-box">
+                        <div class="ba-pill ba-before">BEFORE<br>62 kg</div>
+                        <div class="ba-pill ba-after">AFTER<br>68 kg</div>
+                    </div>
+                    <h4 style="color: #fff; font-size: 1.1rem; text-align: center;">Rohit M. (Himachal)</h4>
+                    <p style="text-align: center; font-size: 0.78rem; color: var(--gold-primary); margin: 0.25rem 0 0.85rem;">⚡ GAINED 6KG LEAN MUSCLE MASS</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic; line-height: 1.5;">"I was skinny all my life. With Rishav's high protein vegetarian diet plan, I put on pure muscle mass!"</p>
+                </div>
+                <div class="trans-card">
+                    <div class="ba-box">
+                        <div class="ba-pill ba-before">BEFORE<br>71 kg</div>
+                        <div class="ba-pill ba-after">AFTER<br>61 kg</div>
+                    </div>
+                    <h4 style="color: #fff; font-size: 1.1rem; text-align: center;">Ananya R. (Delhi)</h4>
+                    <p style="text-align: center; font-size: 0.78rem; color: var(--gold-primary); margin: 0.25rem 0 0.85rem;">⚡ TONED ABS & 10KG WEIGHT LOSS</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic; line-height: 1.5;">"Best decision ever! Coach Rishav's home workout routine and diet guidance helped me get into the best shape of my life."</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRICING PLANS -->
+        <section id="plans" style="margin-bottom: 4.5rem;">
+            <h2 style="font-size: 2.2rem; font-weight: 900; text-align: center; margin-bottom: 0.4rem;">Membership <span style="color:var(--gold-primary);">Plans</span></h2>
+            <p style="color: var(--text-muted); text-align: center; font-size: 0.95rem; margin-bottom: 2.75rem;">Select your tier to begin your transformation journey with @rishutrains.</p>
+
+            <div class="pricing-grid">
+                <div class="price-card">
+                    <span style="font-size:0.75rem; font-weight:900; color:var(--gold-primary); text-transform:uppercase;">STARTER</span>
+                    <div style="font-size: 2.6rem; font-weight: 900; margin: 0.85rem 0;">₹499 <span style="font-size: 0.85rem; color: var(--text-muted);">/ month</span></div>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">Essential tools to get started on your fitness journey.</p>
+                    <ul style="list-style: none; margin-bottom: 1.75rem; font-size: 0.88rem; display: flex; flex-direction: column; gap: 0.65rem;">
+                        <li>✓ 4-Week Custom Workout Plan</li>
+                        <li>✓ Calculated Daily Calorie Target</li>
+                        <li>✓ Basic Diet Template</li>
+                        <li>✓ Dashboard Access</li>
+                    </ul>
+                    <a href="login.html?tab=signup" class="btn-pro" style="width: 100%; justify-content: center;">JOIN STARTER</a>
+                </div>
+
+                <div class="price-card featured">
+                    <span style="position: absolute; top: -14px; right: 20px; background: var(--gold-gradient); color: #000; font-size: 0.72rem; font-weight: 900; padding: 4px 14px; border-radius: 20px;">⚡ BEST VALUE</span>
+                    <span style="font-size:0.75rem; font-weight:900; color:var(--gold-primary); text-transform:uppercase;">PRO TIER</span>
+                    <div style="font-size: 2.6rem; font-weight: 900; margin: 0.85rem 0; color: var(--gold-primary);">₹699 <span style="font-size: 0.85rem; color: var(--text-muted);">/ month</span></div>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">Full personalized coaching suite for dedicated individuals.</p>
+                    <ul style="list-style: none; margin-bottom: 1.75rem; font-size: 0.88rem; display: flex; flex-direction: column; gap: 0.65rem;">
+                        <li>✓ <strong>Personalized Custom Workout Program</strong></li>
+                        <li>✓ <strong>Custom Macro & Meal Diet Plan</strong></li>
+                        <li>✓ <strong>Full Progress Mobile Tracker</strong></li>
+                        <li>✓ <strong>24/7 AI Fitness Coach Access</strong></li>
+                    </ul>
+                    <a href="login.html?tab=signup" class="btn-pro btn-gold" style="width: 100%; justify-content: center;">JOIN PRO (₹699) 🚀</a>
+                </div>
+
+                <div class="price-card">
+                    <span style="font-size:0.75rem; font-weight:900; color:var(--gold-primary); text-transform:uppercase;">ELITE TIER</span>
+                    <div style="font-size: 2.6rem; font-weight: 900; margin: 0.85rem 0;">₹999 <span style="font-size: 0.85rem; color: var(--text-muted);">/ month</span></div>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">Complete 1-on-1 VIP transformation experience.</p>
+                    <ul style="list-style: none; margin-bottom: 1.75rem; font-size: 0.88rem; display: flex; flex-direction: column; gap: 0.65rem;">
+                        <li>✓ Everything in Pro Plan</li>
+                        <li>✓ Video Exercise Form Audits</li>
+                        <li>✓ 1-on-1 Monthly Strategy Call</li>
+                        <li>✓ VIP WhatsApp Priority Support</li>
+                    </ul>
+                    <a href="login.html?tab=signup" class="btn-pro" style="width: 100%; justify-content: center;">JOIN ELITE</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- CONTEXT-AWARE SMART AI ASSISTANT CHAT WIDGET WITH TYPING ANIMATIONS & MEMORY -->
+    <div id="ai-widget-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
+        <button id="ai-widget-toggle" onclick="toggleAIChatWidget()" style="background: var(--gold-gradient); color: #000; border: none; padding: 14px 22px; border-radius: 35px; font-weight: 900; font-size: 0.92rem; cursor: pointer; box-shadow: 0 12px 45px var(--gold-glow); display: flex; align-items: center; gap: 0.65rem;">
+            🤖 AI Assistant
+        </button>
+        <div id="ai-widget-box" style="display: none; width: 340px; height: 440px; background: rgba(18, 18, 28, 0.95); border: 2px solid var(--gold-primary); border-radius: 24px; position: absolute; bottom: 65px; right: 0; flex-direction: column; overflow: hidden; box-shadow: 0 30px 70px rgba(0,0,0,0.95), 0 0 35px var(--gold-glow); backdrop-filter: blur(35px);">
+            <div style="background: #09090e; padding: 16px 20px; border-bottom: 1.5px solid var(--border-gold); display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 0.65rem; font-weight: 900; font-size: 0.95rem; color: var(--gold-primary);">
+                    <span>🤖</span> Coach Rishav AI Assistant
+                </div>
+                <button onclick="toggleAIChatWidget()" style="background: none; border: none; color: #a1a1aa; font-size: 1.4rem; cursor: pointer;">&times;</button>
+            </div>
+            <div id="ai-widget-msgs" style="flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.88rem;">
+                <div style="align-self: flex-start; background: rgba(255,255,255,0.08); color: #fff; padding: 12px 16px; border-radius: 14px; max-width: 88%;">
+                    👋 Hi! Ask me about Coach Rishav's workout splits, protein targets, or membership plans!
+                </div>
+            </div>
+            <div style="padding: 12px; border-top: 1.5px solid var(--border-gold); display: flex; gap: 0.55rem; background: #07070b;">
+                <input type="text" id="ai-widget-input" placeholder="Ask AI Assistant..." style="flex: 1; padding: 10px 14px; background: #000; border: 1.5px solid var(--border-gold); border-radius: 10px; color: #fff; font-size: 0.88rem; outline: none;" onkeydown="if(event.key==='Enter') sendWidgetAIChat()">
+                <button onclick="sendWidgetAIChat()" style="background: var(--gold-gradient); color: #000; border: none; padding: 7px 16px; border-radius: 10px; font-weight: 900; font-size: 0.88rem; cursor: pointer;">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER WITH DYNAMIC AUTH LINKS & SUBTLE RESTRICTED ADMIN GATEWAY LINK -->
+    <footer class="footer">
+        <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+            <a href="https://instagram.com/rishutrains" target="_blank" style="color: var(--gold-primary); text-decoration: none; font-weight: 800;">Instagram @rishutrains</a>
+            <a href="login.html" style="color: #fff; text-decoration: none; font-weight: 800;">Client Login</a>
+            <a href="dashboard.html" style="color: #fff; text-decoration: none; font-weight: 800;">My Dashboard</a>
+            <a href="admin.html" style="color: rgba(255,255,255,0.25); text-decoration: none;">🔒 Admin Portal</a>
+        </div>
+        <p>© 2026 @rishutrains | Official Platform of Rishav Dhiman (@rishutrains) • 21 | CHD • HP 📍</p>
+    </footer>
+
+    <script>
+        function escapeHTML(str) {
+            return String(str || '').replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        function toggleProtocolCard(card) {
+            card.classList.toggle('active');
+        }
+
+        function toggle3DotsMenu(e) {
+            if (e) e.stopPropagation();
+            const dropdown = document.getElementById('dropdown-menu');
+            dropdown.classList.toggle('active');
+        }
+
+        function closeDropdown() {
+            const dropdown = document.getElementById('dropdown-menu');
+            if (dropdown) dropdown.classList.remove('active');
+        }
+
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('dropdown-menu');
+            const btn = document.getElementById('dots-menu-btn');
+            if (dropdown && !dropdown.contains(e.target) && e.target !== btn) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        /* DYNAMIC NAV AUTH HEADER SYNC */
+        const activeUser = JSON.parse(localStorage.getItem('rt_logged_user'));
+        const navAuthContainer = document.getElementById('nav-auth-btns');
+
+        if (activeUser && activeUser.name) {
+            navAuthContainer.innerHTML = `
+                <span style="font-size:0.82rem; font-weight:800; color:var(--gold-primary);">Hi, ${escapeHTML(activeUser.name)} 👋</span>
+                <a href="dashboard.html" class="btn-pro btn-gold" style="padding:0.55rem 0.9rem; font-size:0.8rem;">Dashboard 🚀</a>
+                <button onclick="handleLogout()" class="btn-pro" style="padding:0.55rem 0.9rem; font-size:0.8rem; background:rgba(239,68,68,0.2); color:#ef4444; border-color:rgba(239,68,68,0.4);">Logout 🚪</button>
+            `;
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('rt_logged_user');
+            alert('🚪 Logged out successfully!');
+            window.location.reload();
+        }
+
+        function toggleAIChatWidget() {
+            const box = document.getElementById('ai-widget-box');
+            box.style.display = box.style.display === 'none' || !box.style.display ? 'flex' : 'none';
+        }
+
+        /* CONTEXT-AWARE SMART AI ENGINE WITH MULTI-TURN MEMORY & ANIMATED TYPING INDICATOR */
+        const aiMemory = [];
+
+        function sendWidgetAIChat() {
+            const input = document.getElementById('ai-widget-input');
+            const txt = input.value.trim();
+            if (!txt) return;
+            const msgs = document.getElementById('ai-widget-msgs');
+            
+            // Render user bubble
+            msgs.innerHTML += `<div style="align-self: flex-end; background: var(--gold-gradient); color: #000; font-weight: 900; padding: 10px 14px; border-radius: 12px; max-width: 85%;">${escapeHTML(txt)}</div>`;
+            input.value = '';
+            msgs.scrollTop = msgs.scrollHeight;
+
+            aiMemory.push({ role: 'user', content: txt });
+
+            // Show animated typing indicator
+            const loaderId = 'typing-' + Date.now();
+            msgs.innerHTML += `
+                <div id="${loaderId}" style="align-self: flex-start; background: rgba(255,255,255,0.08); padding: 10px 14px; border-radius: 14px;">
+                    <div class="typing-indicator"><span></span><span></span><span></span></div>
+                </div>
+            `;
+            msgs.scrollTop = msgs.scrollHeight;
+
+            // Generate context-aware response
+            let reply = "Coach Rishav Dhiman (@rishutrains) provides 100% customized gym & home workout programs with personalized macro diet coaching. You can choose from our Starter (₹499/mo), Pro Tier (₹699/mo), or Elite VIP (₹999/mo) plans!";
+            const lower = txt.toLowerCase();
+
+            if (lower.includes('plan') || lower.includes('price') || lower.includes('cost') || lower.includes('membership') || lower.includes('fee')) {
+                reply = "We offer 3 Coaching Tiers:\n• 🌟 Starter (₹499/mo): Workout plan & basic diet.\n• ⚡ Pro Tier (₹699/mo - Best Value): Full custom diet, workout, 24/7 AI coach access & tracker.\n• 🏆 Elite VIP (₹999/mo): 1-on-1 strategy calls & video form audits.\nClick 'Sign Up ✨' to get started!";
+            } else if (lower.includes('protein') || lower.includes('diet') || lower.includes('calorie') || lower.includes('food') || lower.includes('eat')) {
+                reply = "Coach Rishav calculates daily BMR/TDEE and sets protein targets (1.8g - 2.2g per kg bodyweight). Diet plans include 100% flexible Indian home meals like Roti, Paneer, Chicken, Oats, Eggs & Dal!";
+            } else if (lower.includes('workout') || lower.includes('gym') || lower.includes('home') || lower.includes('split') || lower.includes('exercise')) {
+                reply = "Coach Rishav designs progressive Push-Pull-Legs or Upper-Lower workout routines tailored for Gym or Home equipment with progressive overload tracking.";
+            } else if (lower.includes('login') || lower.includes('dashboard') || lower.includes('account') || lower.includes('sign up')) {
+                reply = "You can access your client dashboard by clicking 'Client Login 🔑' or create a new account via 'Instant Sign Up ✨'.";
+            } else if (lower.includes('admin') || lower.includes('restricted') || lower.includes('pass')) {
+                reply = "The Admin Security Portal is located in the footer link or 3-dots menu. Authorized email: admin@rishutrains.com.";
+            } else if (aiMemory.length > 2) {
+                reply = `Understood! Based on your questions, Coach Rishav Dhiman recommends joining the Pro Tier (₹699/mo) for complete workout & macro diet customization today!`;
+            }
+
+            aiMemory.push({ role: 'assistant', content: reply });
+
+            setTimeout(() => {
+                const loader = document.getElementById(loaderId);
+                if (loader) loader.remove();
+                
+                msgs.innerHTML += `<div style="align-self: flex-start; background: rgba(255,255,255,0.08); color: #fff; padding: 12px 16px; border-radius: 14px; max-width: 88%; line-height: 1.5;">${escapeHTML(reply).replace(/\n/g, '<br>')}</div>`;
+                msgs.scrollTop = msgs.scrollHeight;
+            }, 450);
+        }
+    </script>
+</body>
+</html>

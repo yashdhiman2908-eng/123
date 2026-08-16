@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🔒 RESTRICTED AREA — Admin Portal | @rishutrains</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Platform-wide Liquid Glass & Responsive Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        /* PAGE SPECIFIC OVERRIDES */
+        .auth-overlay { position: fixed; inset: 0; background: rgba(1, 1, 3, 0.98); backdrop-filter: blur(40px); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .auth-card {
+            background: var(--surface-glass); border: 2px solid var(--border-gold); border-radius: 32px;
+            width: 100%; max-width: 440px; padding: 2.5rem 1.75rem; box-shadow: 0 35px 130px rgba(0,0,0,0.98), 0 0 50px var(--gold-glow);
+            text-align: center; backdrop-filter: blur(40px); position: relative; overflow: hidden;
+        }
+        .auth-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: var(--gold-gradient);
+        }
+
+        .restricted-badge {
+            background: rgba(255, 71, 87, 0.18); border: 1.5px solid rgba(255, 71, 87, 0.45); color: #ff4757;
+            padding: 0.55rem 1rem; border-radius: 20px; font-weight: 900; font-size: 0.78rem; letter-spacing: 0.04em;
+            display: inline-flex; align-items: center; gap: 0.45rem; margin-bottom: 1.15rem;
+        }
+
+        /* NAVIGATION HEADER */
+        .nav-header {
+            background: rgba(8, 8, 14, 0.85); backdrop-filter: blur(40px) saturate(190%); -webkit-backdrop-filter: blur(40px) saturate(190%);
+            border-bottom: 1.5px solid var(--border-gold); padding: 0.85rem 1.5rem;
+            display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 15px 50px rgba(0,0,0,0.95);
+        }
+        .logo { font-size: 1.25rem; font-weight: 900; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 0.75rem; }
+        .logo img { width: 40px; height: 40px; border-radius: 50%; border: 2.5px solid var(--gold-primary); box-shadow: 0 0 25px var(--gold-glow); object-fit: cover; }
+        .logo span { background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.03em; font-weight: 900; }
+
+        .header-meta { display: flex; align-items: center; gap: 1rem; }
+        .live-clock { font-size: 0.8rem; font-weight: 800; color: var(--gold-primary); font-family: monospace; background: rgba(0,0,0,0.7); padding: 0.4rem 0.85rem; border-radius: 12px; border: 1px solid var(--border-gold); }
+        .ping-badge { font-size: 0.75rem; font-weight: 800; color: var(--color-success); display: flex; align-items: center; gap: 0.4rem; background: rgba(16,185,129,0.12); padding: 0.4rem 0.85rem; border-radius: 12px; border: 1px solid rgba(16,185,129,0.35); }
+
+        .header-status-badge {
+            background: rgba(255, 215, 0, 0.14); border: 1.5px solid var(--border-gold); color: var(--gold-primary);
+            padding: 0.4rem 0.95rem; border-radius: 24px; font-size: 0.78rem; font-weight: 900;
+            display: flex; align-items: center; gap: 0.45rem; box-shadow: 0 0 20px var(--gold-glow);
+        }
+        .pulse-dot { width: 8px; height: 8px; background: var(--gold-primary); border-radius: 50%; box-shadow: 0 0 12px var(--gold-primary); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(1.3); } }
+
+        .dash-layout { display: flex; flex: 1; min-height: calc(100vh - 70px); position: relative; z-index: 1; }
+        .sidebar {
+            width: 290px; background: rgba(10, 10, 16, 0.78); border-right: 1.5px solid var(--border-glass);
+            padding: 2rem 1.1rem; display: flex; flex-direction: column; gap: 0.65rem; flex-shrink: 0;
+            backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%);
+            box-shadow: inset -1px 0 1px rgba(255, 255, 255, 0.1);
+        }
+        .nav-tab-btn {
+            padding: 0.95rem 1.25rem; border-radius: 18px; color: var(--text-muted); font-size: 0.88rem; font-weight: 800;
+            background: rgba(255, 255, 255, 0.02); border: 1.5px solid transparent; text-align: left; cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 0.75rem; backdrop-filter: blur(20px); white-space: nowrap; min-height: 44px;
+        }
+        .nav-tab-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.08); border-color: var(--border-gold); transform: translateX(4px); }
+        .nav-tab-btn.active { color: #000; background: var(--gold-gradient); font-weight: 900; box-shadow: 0 8px 30px var(--gold-glow); }
+
+        .content { flex: 1; padding: 2.25rem; overflow-y: auto; }
+
+        .quick-actions-bar {
+            display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;
+            background: var(--surface-glass); border: 1.5px solid var(--border-gold); padding: 1rem 1.5rem; border-radius: 22px;
+            align-items: center; justify-content: space-between; backdrop-filter: blur(35px);
+        }
+
+        .search-input {
+            padding: 0.75rem 1.15rem; background: #000; border: 1.5px solid var(--border-gold); border-radius: 12px;
+            color: #fff; font-size: 0.88rem; outline: none; width: 300px; transition: all 0.3s;
+        }
+        .search-input:focus { border-color: var(--gold-primary); box-shadow: 0 0 20px var(--gold-glow); }
+
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+        .stat-card {
+            background: var(--surface-glass); border: 1.5px solid var(--border-glass); padding: 1.6rem; border-radius: 24px;
+            backdrop-filter: blur(35px); transition: all 0.35s ease; position: relative; overflow: hidden;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 15px 45px rgba(0,0,0,0.7);
+        }
+        .stat-card:hover { transform: translateY(-5px); border-color: var(--border-gold); background: var(--surface-glass-hover); box-shadow: 0 20px 50px rgba(0,0,0,0.85), 0 0 35px var(--gold-glow); }
+
+        .stat-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .stat-icon { width: 50px; height: 50px; border-radius: 16px; background: rgba(255, 215, 0, 0.16); border: 1.5px solid var(--border-gold); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 0 25px var(--gold-glow); }
+        .trend-pill { font-size: 0.72rem; font-weight: 900; padding: 4px 10px; border-radius: 14px; background: rgba(16,185,129,0.25); color: var(--color-success); border: 1px solid rgba(16,185,129,0.45); }
+
+        .stat-title { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 900; letter-spacing: 0.08em; margin-top: 1rem; }
+        .stat-val { font-size: 2.1rem; font-weight: 900; color: #fff; margin-top: 0.2rem; letter-spacing: -0.03em; }
+
+        .chart-widget {
+            background: var(--surface-glass); border: 1.5px solid var(--border-gold); border-radius: 26px; padding: 1.75rem;
+            margin-bottom: 2rem; backdrop-filter: blur(35px); box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 20px 50px rgba(0,0,0,0.75);
+        }
+        .chart-bars-container { display: flex; justify-content: space-between; align-items: flex-end; height: 150px; margin-top: 1.75rem; gap: 0.85rem; padding: 0 0.5rem; }
+        .chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.55rem; }
+        .chart-bar { width: 100%; max-width: 48px; background: rgba(255, 215, 0, 0.22); border: 1.5px solid var(--border-gold); border-radius: 12px 12px 0 0; transition: all 0.5s ease; position: relative; }
+        .chart-bar:hover { background: var(--gold-gradient); box-shadow: 0 0 30px var(--gold-glow); }
+        .chart-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 800; }
+
+        .table-card { background: var(--surface-glass); border: 1.5px solid var(--border-gold); border-radius: 26px; padding: 1.75rem; backdrop-filter: blur(35px); box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 20px 50px rgba(0,0,0,0.75); }
+        
+        .badge-status { padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 900; text-transform: uppercase; display: inline-flex; align-items: center; gap: 0.4rem; }
+
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.96); backdrop-filter: blur(30px); z-index: 3000; display: none; align-items: center; justify-content: center; padding: 1rem; }
+        .modal-overlay.active { display: flex; }
+        .modal-card { background: rgba(12,12,20,0.95); border: 2px solid var(--border-gold); border-radius: 30px; width: 100%; max-width: 520px; max-height: 92vh; overflow-y: auto; padding: 2rem 1.5rem; backdrop-filter: blur(40px); box-shadow: 0 35px 120px rgba(0,0,0,0.98); }
+
+        /* PROOF PROMPT IMAGE VIEWER RESPONSIVE */
+        .proof-img-container {
+            width: 100%; height: 240px; background: #000; border: 2px solid var(--border-gold); border-radius: 16px;
+            overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; margin: 1rem 0;
+        }
+        .proof-img-preview { max-width: 100%; max-height: 100%; object-fit: contain; transition: transform 0.3s ease; cursor: zoom-in; }
+        .proof-img-preview.zoomed { transform: scale(2.2); cursor: zoom-out; }
+
+        /* FULL MOBILE ADAPTIVE RESPONSIVE CSS */
+        @media (max-width: 900px) {
+            .nav-header { padding: 0.75rem 1rem; }
+            .logo { font-size: 1.1rem; gap: 0.5rem; }
+            .logo img { width: 36px; height: 36px; }
+            .header-meta { display: none; }
+            .header-status-badge { font-size: 0.7rem; padding: 0.3rem 0.75rem; }
+
+            .dash-layout { flex-direction: column; }
+            .sidebar { width: 100%; flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1.5px solid var(--border-glass); padding: 0.65rem; gap: 0.5rem; -webkit-overflow-scrolling: touch; }
+            .nav-tab-btn { padding: 0.65rem 1rem; font-size: 0.82rem; min-height: 38px; border-radius: 12px; }
+            .content { padding: 1.25rem 0.85rem; }
+
+            .quick-actions-bar { flex-direction: column; align-items: stretch; gap: 0.75rem; padding: 1rem; }
+            .search-input { width: 100%; }
+
+            .grid-4 { grid-template-columns: repeat(2, 1fr); gap: 0.85rem; }
+            .stat-card { padding: 1.15rem 0.9rem; border-radius: 18px; }
+            .stat-val { font-size: 1.5rem; }
+
+            .chart-widget, .table-card { padding: 1.25rem 1rem; border-radius: 20px; }
+            .modal-card { max-width: 95vw; padding: 1.5rem 1rem; }
+        }
+
+        @media (max-width: 480px) {
+            .grid-4 { grid-template-columns: 1fr; }
+        }
+    </style>
+    <script src="db_manager.js"></script>
+</head>
+<body>
+
+    <div class="liquid-orb-1"></div>
+    <div class="liquid-orb-2"></div>
+
+    <!-- RESTRICTED SECURITY LOGIN GATE -->
+    <div id="admin-auth" class="auth-overlay">
+        <div class="auth-card">
+            <div class="restricted-badge">
+                ⛔ RESTRICTED AREA — AUTHORIZED PERSONNEL ONLY
+            </div>
+            <div style="width:70px; height:70px; border-radius:50%; border:2.5px solid var(--gold-primary); margin:0 auto 1rem; display:flex; align-items:center; justify-content:center; font-size:1.8rem; background:rgba(255,215,0,0.15); box-shadow: 0 0 35px var(--gold-glow);">
+                🔒
+            </div>
+            <h2 style="font-size: 1.6rem; font-weight: 900; color: #fff; margin-bottom: 0.35rem;">Restricted Admin Portal</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Unauthorized access prohibited. Please enter Administrator Credentials.</p>
+            <form onsubmit="handleAdminLogin(event)">
+                <div style="margin-bottom: 1rem; text-align: left;">
+                    <label style="display: block; font-size: 0.72rem; font-weight: 900; color: var(--gold-primary); text-transform: uppercase; margin-bottom: 0.4rem;">Admin Email / ID</label>
+                    <input type="text" id="admin-user" style="width: 100%; padding: 0.85rem 1.1rem; background: #000; border: 1.5px solid var(--border-gold); border-radius: 12px; color: #fff; font-size: 0.9rem; outline: none;" required placeholder="admin@rishutrains.com">
+                </div>
+                <div style="margin-bottom: 1.5rem; text-align: left;">
+                    <label style="display: block; font-size: 0.72rem; font-weight: 900; color: var(--gold-primary); text-transform: uppercase; margin-bottom: 0.4rem;">Security Password</label>
+                    <input type="password" id="admin-pass" style="width: 100%; padding: 0.85rem 1.1rem; background: #000; border: 1.5px solid var(--border-gold); border-radius: 12px; color: #fff; font-size: 0.9rem; outline: none;" required placeholder="••••••••••••••••">
+                </div>
+                <button type="submit" class="btn-pro btn-gold" style="width: 100%; padding: 0.95rem; justify-content: center; font-size: 0.92rem;">Authenticate Access 🔓</button>
+            </form>
+            <div style="margin-top: 1.15rem;">
+                <a href="index.html" style="font-size: 0.8rem; color: var(--text-muted); text-decoration: underline;">← Return to Main Website</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVIGATION HEADER -->
+    <header class="nav-header">
+        <a href="index.html" class="logo">
+            <img src="profile.png" alt="@rishutrains" onerror="this.src='https://via.placeholder.com/40/ffd700/000?text=RT'">
+            <span>@rishutrains Suite</span>
+        </a>
+
+        <div class="header-meta">
+            <div class="live-clock" id="live-clock">16 AUG 2026 | 15:48:00</div>
+            <div class="ping-badge">📁 Pure Memory Control Active</div>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <button onclick="DBManager.exportDBFile()" class="btn-pro btn-gold" style="padding: 0.4rem 0.8rem; font-size: 0.78rem;">Export DB File 📥</button>
+            <button onclick="document.getElementById('db-file-input').click()" class="btn-pro" style="padding: 0.4rem 0.8rem; font-size: 0.78rem;">Import DB File 📤</button>
+            <button onclick="handleClearAllComputerMemory()" class="btn-pro btn-danger" style="padding: 0.4rem 0.8rem; font-size: 0.78rem;">Clear Computer Memory 🧹</button>
+            <input type="file" id="db-file-input" accept=".json" style="display:none;" onchange="handleImportDB(event)">
+            <div class="header-status-badge">
+                <span class="pulse-dot"></span> ENCRYPTED
+            </div>
+            <button onclick="handleAdminLogout()" class="btn-pro btn-danger" aria-label="Logout Admin">Logout 🚪</button>
+        </div>
+    </header>
+
+    <div class="dash-layout">
+        <aside class="sidebar">
+            <button class="nav-tab-btn active" onclick="showTab('overview', this)">📊 Analytics</button>
+            <button class="nav-tab-btn" onclick="showTab('payments', this)">💳 Payments</button>
+            <button class="nav-tab-btn" onclick="showTab('users', this)">👥 Clients DB</button>
+            <button class="nav-tab-btn" onclick="showTab('logs', this)">📜 Login / Logout Logs</button>
+            <button class="nav-tab-btn" style="color: #ff4757; background: rgba(255, 71, 87, 0.15); border-color: rgba(255, 71, 87, 0.4);" onclick="handleAdminLogout()">🚪 Logout</button>
+        </aside>
+
+        <main class="content">
+            <div class="quick-actions-bar">
+                <div style="display: flex; gap: 0.55rem; align-items: center; flex-wrap: wrap;">
+                    <span style="font-size: 0.78rem; font-weight: 900; color: var(--gold-primary); text-transform: uppercase; letter-spacing: 0.08em; margin-right: 0.35rem;">⚡ Computer Disk Actions:</span>
+                    <button class="btn-pro btn-gold" style="padding: 0.45rem 0.85rem; font-size: 0.78rem;" onclick="DBManager.exportDBFile()">Export DB File (JSON) 📥</button>
+                    <button class="btn-pro" style="padding: 0.45rem 0.85rem; font-size: 0.78rem;" onclick="document.getElementById('db-file-input').click()">Import DB File 📤</button>
+                    <button class="btn-pro btn-danger" style="padding: 0.45rem 0.85rem; font-size: 0.78rem;" onclick="handleClearAllComputerMemory()">Wipe All Data From PC 🧹</button>
+                    <button class="btn-pro" style="padding: 0.45rem 0.85rem; font-size: 0.78rem;" onclick="renderAllData()">Refresh View 🔄</button>
+                </div>
+                <div>
+                    <input type="text" class="search-input" id="table-search" placeholder="🔍 Search Name, Email, TxID or UTR..." onkeyup="filterTables()">
+                </div>
+            </div>
+
+            <!-- TAB 1: ANALYTICS OVERVIEW -->
+            <div id="tab-overview" class="tab-pane">
+                <div style="margin-bottom: 1.5rem;">
+                    <h2 style="font-size: 1.6rem; font-weight: 900; color: #fff;">Restricted Admin Analytics</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Real-time revenue metrics, active memberships, and system health status</p>
+                </div>
+
+                <div class="grid-4">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">💰</div>
+                            <span class="trend-pill">↗ Verified</span>
+                        </div>
+                        <div class="stat-title">Total Approved Revenue</div>
+                        <div class="stat-val" id="stat-revenue" style="color: var(--gold-primary);">₹0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">👥</div>
+                            <span class="trend-pill">↗ Active DB</span>
+                        </div>
+                        <div class="stat-title">Total Saved Clients</div>
+                        <div class="stat-val" id="stat-total-users">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">⚡</div>
+                            <span class="trend-pill">↗ Approved</span>
+                        </div>
+                        <div class="stat-title">Active Memberships</div>
+                        <div class="stat-val" id="stat-active-users" style="color: var(--color-success);">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">📜</div>
+                            <span class="trend-pill">↗ System</span>
+                        </div>
+                        <div class="stat-title">Total Session Logs</div>
+                        <div class="stat-val" id="stat-total-logs" style="color: #3b82f6;">0</div>
+                    </div>
+                </div>
+
+                <div class="chart-widget">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                        <div>
+                            <h3 style="font-size: 1.2rem; font-weight: 900; color: #fff;">Monthly Platform Growth Trajectory</h3>
+                            <p style="font-size: 0.82rem; color: var(--text-muted);">Visual trajectory of gross client volume & subscriptions</p>
+                        </div>
+                        <span class="badge-status" style="background: rgba(255,215,0,0.2); color: var(--gold-primary); border: 1.5px solid var(--border-gold); font-size: 0.7rem;">📁 Full Control Memory Purge Ready</span>
+                    </div>
+
+                    <div class="chart-bars-container">
+                        <div class="chart-col"><div class="chart-bar" style="height: 35%;"></div><span class="chart-label">Jan</span></div>
+                        <div class="chart-col"><div class="chart-bar" style="height: 50%;"></div><span class="chart-label">Feb</span></div>
+                        <div class="chart-col"><div class="chart-bar" style="height: 65%;"></div><span class="chart-label">Mar</span></div>
+                        <div class="chart-col"><div class="chart-bar" style="height: 80%;"></div><span class="chart-label">Apr</span></div>
+                        <div class="chart-col"><div class="chart-bar" style="height: 100%; background: var(--gold-gradient); box-shadow: 0 0 30px var(--gold-glow);"></div><span class="chart-label" style="color: var(--gold-primary); font-weight: 900;">Aug (Now)</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: PAYMENTS -->
+            <div id="tab-payments" class="tab-pane" style="display: none;">
+                <div style="margin-bottom: 1.5rem;">
+                    <h2 style="font-size: 1.5rem; font-weight: 900; color: #fff;">UPI Payment Verification & Approval</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Inspect uploaded payment screenshot proofs (view, zoom, download) to approve memberships</p>
+                </div>
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead><tr><th>TxID</th><th>Client Info</th><th>Plan</th><th>Amount</th><th>UTR Reference</th><th>Status</th><th>Actions & Proof</th></tr></thead>
+                            <tbody id="payments-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: CLIENT CREDENTIALS DB & WORKOUT PROGRESS -->
+            <div id="tab-users" class="tab-pane" style="display: none;">
+                <div style="margin-bottom: 1.5rem;">
+                    <h2 style="font-size: 1.5rem; font-weight: 900; color: #fff;">Saved Client Credentials & Account Management</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Inspect registered logins, passwords, last active time, audit workouts, and update plans</p>
+                </div>
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead><tr><th>User ID</th><th>Client Name</th><th>Email / Phone</th><th>Saved Password 🔑</th><th>Registered / Last Login</th><th>Status</th><th>Plan</th><th>Actions</th></tr></thead>
+                            <tbody id="users-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: CLIENT LOGIN / LOGOUT LOGS -->
+            <div id="tab-logs" class="tab-pane" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+                    <div>
+                        <h2 style="font-size: 1.5rem; font-weight: 900; color: #fff;">Client Login & Logout Timestamps</h2>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Name, ID, and exact date/time of client logins and logouts</p>
+                    </div>
+                    <button class="btn-pro btn-danger" style="padding: 0.45rem 0.85rem; font-size: 0.8rem;" onclick="clearAuditLogs()">Clear Activity History 🗑️</button>
+                </div>
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time of Activity</th>
+                                    <th>User ID</th>
+                                    <th>Client Name & Email</th>
+                                    <th>Login / Logout Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: VIEW & ZOOM UPI PAYMENT PROOF -->
+    <div id="proof-modal" class="modal-overlay">
+        <div class="modal-card">
+            <button class="modal-close" onclick="closeModal('proof-modal')">&times;</button>
+            <h3 style="font-size: 1.25rem; font-weight: 900; text-align: center; color: var(--gold-primary);">UPI Payment Screenshot Proof</h3>
+            <p id="proof-modal-subtitle" style="text-align: center; font-weight: 800; font-size: 0.82rem; color: var(--text-muted); margin-top: 0.2rem;">Transaction Proof Verification</p>
+
+            <div class="proof-img-container">
+                <img id="proof-modal-img" src="" class="proof-img-preview" alt="UPI Proof" onclick="toggleZoomImg(this)">
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.15rem;">
+                <span style="font-size: 0.75rem; color: var(--text-muted);">💡 Click image to zoom in/out</span>
+                <a id="proof-download-btn" href="#" download="upi_payment_proof.png" class="btn-pro" style="font-size: 0.78rem; padding: 0.4rem 0.8rem;">Download Proof 📥</a>
+            </div>
+
+            <div id="proof-modal-actions" style="display: flex; gap: 0.75rem;"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: VIEW CLIENT WORKOUT PROGRESS -->
+    <div id="workout-progress-modal" class="modal-overlay">
+        <div class="modal-card">
+            <button class="modal-close" onclick="closeModal('workout-progress-modal')">&times;</button>
+            <h3 style="font-size: 1.35rem; font-weight: 900; color: var(--gold-primary); text-align: center;" id="wp-modal-title">Client Workout Progress 🏋️</h3>
+            <p id="wp-modal-subtitle" style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-bottom: 1.25rem;"></p>
+
+            <div style="margin-bottom: 1.25rem; text-align: left;">
+                <h4 style="font-size: 0.9rem; font-weight: 900; color: #10b981; text-transform: uppercase; margin-bottom: 0.5rem;">✓ Completed Workouts</h4>
+                <div id="wp-completed-list" style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 14px; padding: 1rem; font-size: 0.85rem;"></div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem; text-align: left;">
+                <h4 style="font-size: 0.9rem; font-weight: 900; color: #ffa502; text-transform: uppercase; margin-bottom: 0.5rem;">⏳ Pending / Incomplete Workouts</h4>
+                <div id="wp-pending-list" style="background: rgba(255,165,2,0.08); border: 1px solid rgba(255,165,2,0.3); border-radius: 14px; padding: 1rem; font-size: 0.85rem;"></div>
+            </div>
+
+            <button class="btn-pro btn-gold" style="width: 100%; justify-content: center;" onclick="closeModal('workout-progress-modal')">Close Audit</button>
+        </div>
+    </div>
+
+    <!-- MODAL: EDIT USER PLAN -->
+    <div id="edit-user-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 1.25rem; color: var(--gold-primary);">Assign Calorie & Protein Targets</h3>
+            <form onsubmit="handleSaveUserPlan(event)">
+                <input type="hidden" id="edit-user-id">
+                <div style="margin-bottom: 1.15rem;">
+                    <label style="display:block; font-size:0.75rem; color:var(--gold-primary); font-weight:900; text-transform:uppercase; margin-bottom:0.4rem;">Daily Calorie Target (kcal)</label>
+                    <input type="number" id="edit-calories" style="width:100%; padding:0.85rem 1.1rem; background:#000; border:1.5px solid var(--border-gold); color:#fff; border-radius:12px; outline:none;" required>
+                </div>
+                <div style="margin-bottom: 1.15rem;">
+                    <label style="display:block; font-size:0.75rem; color:var(--gold-primary); font-weight:900; text-transform:uppercase; margin-bottom:0.4rem;">Daily Protein Target (grams)</label>
+                    <input type="number" id="edit-protein" style="width:100%; padding:0.85rem 1.1rem; background:#000; border:1.5px solid var(--border-gold); color:#fff; border-radius:12px; outline:none;" required>
+                </div>
+                <div style="margin-bottom: 1.15rem;">
+                    <label style="display:block; font-size:0.75rem; color:var(--gold-primary); font-weight:900; text-transform:uppercase; margin-bottom:0.4rem;">Assigned Workout Split</label>
+                    <input type="text" id="edit-split" style="width:100%; padding:0.85rem 1.1rem; background:#000; border:1.5px solid var(--border-gold); color:#fff; border-radius:12px; outline:none;" required placeholder="Push Pull Legs">
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display:block; font-size:0.75rem; color:var(--gold-primary); font-weight:900; text-transform:uppercase; margin-bottom:0.4rem;">Coach Instructions / Notes</label>
+                    <textarea id="edit-notes" style="width:100%; padding:0.85rem 1.1rem; background:#000; border:1.5px solid var(--border-gold); color:#fff; border-radius:12px; height:80px; outline:none;"></textarea>
+                </div>
+                <div style="display:flex; gap:0.75rem;">
+                    <button type="submit" class="btn-pro btn-gold" style="flex:1; justify-content:center;">Save Plan ✓</button>
+                    <button type="button" class="btn-pro" onclick="closeModal('edit-user-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADMIN DIRECT CLIENT PASSWORD CHANGE MODAL -->
+    <div id="change-pass-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 0.4rem; color: var(--gold-primary);">Change Client Password 🔑</h3>
+            <p id="change-pass-subtitle" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">Update login password for selected client account.</p>
+
+            <form onsubmit="handleAdminChangeUserPassword(event)">
+                <input type="hidden" id="pass-user-id">
+                <div style="margin-bottom: 1.25rem; text-align: left;">
+                    <label style="display:block; font-size:0.75rem; color:var(--gold-primary); font-weight:900; text-transform:uppercase; margin-bottom:0.4rem;">New Client Security Password</label>
+                    <input type="text" id="pass-new-val" style="width:100%; padding:0.85rem 1.1rem; background:#000; border:1.5px solid var(--border-gold); color:#fff; border-radius:12px; font-weight:900; font-size:1rem; outline:none;" required placeholder="Enter new password">
+                </div>
+
+                <div style="display:flex; gap:0.75rem;">
+                    <button type="submit" class="btn-pro btn-gold" style="flex:1; justify-content:center;">Update Password ✓</button>
+                    <button type="button" class="btn-pro" onclick="closeModal('change-pass-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FLOATING AI ASSISTANT -->
+    <div id="ai-widget-container" style="position: fixed; bottom: 15px; right: 15px; z-index: 9999;">
+        <button id="ai-widget-toggle" onclick="toggleAIChatWidget()" style="background: var(--gold-gradient); color: #000; border: none; padding: 12px 18px; border-radius: 35px; font-weight: 900; font-size: 0.88rem; cursor: pointer; box-shadow: 0 10px 35px var(--gold-glow); display: flex; align-items: center; gap: 0.5rem;">
+            🤖 AI Assistant
+        </button>
+        <div id="ai-widget-box" style="display: none; width: 320px; height: 400px; max-width: 90vw; background: rgba(18, 18, 28, 0.95); border: 2px solid var(--gold-primary); border-radius: 22px; position: absolute; bottom: 55px; right: 0; flex-direction: column; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.95), 0 0 30px var(--gold-glow); backdrop-filter: blur(35px);">
+            <div style="background: #09090e; padding: 14px 16px; border-bottom: 1.5px solid var(--border-gold); display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 0.55rem; font-weight: 900; font-size: 0.88rem; color: var(--gold-primary);">
+                    <span>🤖</span> Restricted AI Assistant
+                </div>
+                <button onclick="toggleAIChatWidget()" style="background: none; border: none; color: #a1a1aa; font-size: 1.3rem; cursor: pointer;">&times;</button>
+            </div>
+            <div id="ai-widget-msgs" style="flex: 1; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.85rem;">
+                <div style="align-self: flex-start; background: rgba(255,255,255,0.08); color: #fff; padding: 10px 14px; border-radius: 12px; max-width: 88%;">
+                    👋 Restricted Admin AI Assistant Active.
+                </div>
+            </div>
+            <div style="padding: 10px; border-top: 1.5px solid var(--border-gold); display: flex; gap: 0.45rem; background: #07070b;">
+                <input type="text" id="ai-widget-input" placeholder="Ask AI Assistant..." style="flex: 1; padding: 9px 12px; background: #000; border: 1.5px solid var(--border-gold); border-radius: 8px; color: #fff; font-size: 0.82rem; outline: none;" onkeydown="if(event.key==='Enter') sendWidgetAIChat()">
+                <button onclick="sendWidgetAIChat()" style="background: var(--gold-gradient); color: #000; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 900; font-size: 0.82rem; cursor: pointer;">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        let cachedUsers = [];
+        let cachedPayments = [];
+        let cachedLogs = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const isAdminLoggedIn = localStorage.getItem('rt_admin_logged_in') === 'true';
+            const adminAuthOverlay = document.getElementById('admin-auth');
+            
+            if (isAdminLoggedIn) {
+                adminAuthOverlay.style.display = 'none';
+                renderAllData();
+            } else {
+                adminAuthOverlay.style.display = 'flex';
+            }
+
+            setInterval(renderAllData, 2500);
+        });
+
+        setInterval(() => {
+            const now = new Date();
+            const str = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase() + ' | ' + now.toLocaleTimeString();
+            document.getElementById('live-clock').textContent = str;
+        }, 1000);
+
+        function escapeHTML(str) {
+            return String(str || '').replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        function filterTables() {
+            const query = document.getElementById('table-search').value.toLowerCase();
+            document.querySelectorAll('.data-table tbody tr').forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        function toggleAIChatWidget() {
+            const box = document.getElementById('ai-widget-box');
+            box.style.display = box.style.display === 'none' || !box.style.display ? 'flex' : 'none';
+        }
+
+        function sendWidgetAIChat() {
+            const input = document.getElementById('ai-widget-input');
+            const txt = input.value.trim();
+            if (!txt) return;
+            const msgs = document.getElementById('ai-widget-msgs');
+            msgs.innerHTML += `<div style="align-self: flex-end; background: var(--gold-gradient); color: #000; font-weight: 900; padding: 10px 14px; border-radius: 12px; max-width: 85%;">${escapeHTML(txt)}</div>`;
+            input.value = '';
+
+            let reply = "Welcome Coach Rishav! Full Control Memory Purge is ready. You can click 'Clear Computer Memory 🧹' anytime to wipe all data from your computer disk.";
+            setTimeout(() => {
+                msgs.innerHTML += `<div style="align-self: flex-start; background: rgba(255,255,255,0.08); color: #fff; padding: 10px 14px; border-radius: 14px; max-width: 88%;">${reply}</div>`;
+                msgs.scrollTop = msgs.scrollHeight;
+            }, 450);
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('admin-user').value.trim();
+            const p = document.getElementById('admin-pass').value.trim();
+            if ((u === 'admin@rishutrains.com' || u === 'admin') && p === 'Rishu#Admin@2026') {
+                localStorage.setItem('rt_admin_logged_in', 'true');
+                localStorage.setItem('rt_admin_session_token', 'ADM-SESS-' + Math.floor(10000000 + Math.random() * 90000000));
+                document.getElementById('admin-auth').style.display = 'none';
+                renderAllData();
+                alert('🔓 Admin Session Authenticated & Persisted!');
+            } else {
+                alert('❌ Invalid Admin Credentials!');
+            }
+        }
+
+        function handleAdminLogout() {
+            if (confirm("🔒 Are you sure you want to log out of Admin Session?")) {
+                localStorage.removeItem('rt_admin_logged_in');
+                localStorage.removeItem('rt_admin_session_token');
+                document.getElementById('admin-auth').style.display = 'flex';
+                document.getElementById('admin-pass').value = '';
+                alert("🚪 Admin Logged Out Successfully!");
+            }
+        }
+
+        function handleClearAllComputerMemory() {
+            if (confirm("🧹 WARNING: Are you sure you want to wipe ALL client accounts, login records, and payment data from your computer disk?\n\nTip: You can click 'Export DB File (JSON) 📥' first to save a backup copy.")) {
+                DBManager.purgeAllComputerStorage();
+                alert("✨ All website data wiped 100% clean from your computer disk!");
+                location.reload();
+            }
+        }
+
+        function showTab(name, btn) {
+            document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+            document.getElementById(`tab-${name}`).style.display = 'block';
+            renderAllData();
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        function handleImportDB(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            DBManager.importDBFile(file, (success, msg) => {
+                alert(msg);
+                if (success) renderAllData();
+            });
+        }
+
+        function renderAllData() {
+            cachedUsers = JSON.parse(localStorage.getItem('rt_users_db')) || [];
+            cachedPayments = JSON.parse(localStorage.getItem('rt_payments_db')) || [];
+            cachedLogs = JSON.parse(localStorage.getItem('rt_audit_logs_db')) || [];
+
+            const users = cachedUsers;
+            const payments = cachedPayments;
+            const logs = cachedLogs;
+
+            const approvedPayments = payments.filter(p => p.status === 'APPROVED');
+            const totalRevenue = approvedPayments.reduce((acc, p) => acc + (parseInt(p.amount) || 0), 0);
+            const activeUsers = users.filter(u => u.membershipStatus === 'ACTIVE').length;
+
+            document.getElementById('stat-revenue').textContent = `₹${totalRevenue.toLocaleString('en-IN')}`;
+            document.getElementById('stat-total-users').textContent = users.length;
+            document.getElementById('stat-active-users').textContent = activeUsers;
+            document.getElementById('stat-total-logs').textContent = logs.length;
+
+            const paymentsTbody = document.getElementById('payments-tbody');
+            if (payments.length === 0) {
+                paymentsTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:2rem;">No payment records submitted yet. Client payment proofs will appear here automatically upon upload.</td></tr>`;
+            } else {
+                paymentsTbody.innerHTML = payments.map(p => `
+                    <tr>
+                        <td><code style="color:var(--gold-primary); font-weight:800;">${escapeHTML(p.txId)}</code></td>
+                        <td><strong>${escapeHTML(p.userName)}</strong><br><small style="color:var(--text-muted);">${escapeHTML(p.userEmail)}</small></td>
+                        <td>${escapeHTML(p.plan)}</td>
+                        <td><strong style="color:var(--gold-primary); font-size:1rem;">₹${escapeHTML(p.amount)}</strong></td>
+                        <td><code>${escapeHTML(p.utr)}</code></td>
+                        <td>
+                            <span class="badge-status" style="background:${p.status==='APPROVED'?'rgba(16,185,129,0.22)':(p.status==='REJECTED'?'rgba(255,71,87,0.22)':'rgba(255,165,2,0.22)')}; color:${p.status==='APPROVED'?'#10b981':(p.status==='REJECTED'?'#ff4757':'#ffa502')}; border:1px solid ${p.status==='APPROVED'?'#10b981':'#ffa502'};">
+                                ${escapeHTML(p.status)}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn-pro" style="padding:0.4rem 0.8rem; font-size:0.78rem; background:rgba(255,215,0,0.15); color:var(--gold-primary); border-color:var(--border-gold);" onclick="openProofModal('${p.txId}')">View Proof 🖼️</button>
+                            ${p.status === 'PENDING' ? `
+                                <button class="btn-pro btn-gold" style="padding:0.4rem 0.8rem; font-size:0.78rem;" onclick="approvePayment('${p.txId}')">Approve ✓</button>
+                                <button class="btn-pro btn-danger" style="padding:0.4rem 0.8rem; font-size:0.78rem;" onclick="rejectPayment('${p.txId}')">Reject ✗</button>
+                            ` : `<span style="font-size:0.78rem; color:var(--text-muted); margin-left:0.3rem;">Processed</span>`}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            const usersTbody = document.getElementById('users-tbody');
+            if (users.length === 0) {
+                usersTbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:2rem;">No registered clients found in the database. New signups from login.html will appear here instantly.</td></tr>`;
+            } else {
+                usersTbody.innerHTML = users.map(u => `
+                    <tr>
+                        <td><code style="color:var(--gold-primary); font-weight:800;">${escapeHTML(u.userId)}</code></td>
+                        <td><strong>${escapeHTML(u.name)}</strong></td>
+                        <td>${escapeHTML(u.email)}<br><small style="color:var(--text-muted);">${escapeHTML(u.phone)}</small></td>
+                        <td><code style="color:var(--gold-light); font-weight:900; font-size:0.95rem; text-shadow:0 0 10px var(--gold-glow);">${escapeHTML(u.password)}</code></td>
+                        <td><small style="color:#fff; font-weight:800;">Reg: ${escapeHTML(u.createdAt || 'N/A')}</small><br><small style="color:var(--text-muted);">Active: ${escapeHTML(u.lastLogin || 'N/A')}</small></td>
+                        <td>
+                            <span class="badge-status" style="background:${u.membershipStatus==='ACTIVE'?'rgba(16,185,129,0.22)':'rgba(255,71,87,0.22)'}; color:${u.membershipStatus==='ACTIVE'?'#10b981':'#ff4757'}; border:1px solid ${u.membershipStatus==='ACTIVE'?'#10b981':'#ff4757'};">
+                                ${escapeHTML(u.membershipStatus || 'INACTIVE')}
+                            </span>
+                        </td>
+                        <td>${escapeHTML(u.activePlan || 'None')}</td>
+                        <td>
+                            <button class="btn-pro" style="background:rgba(16,185,129,0.18); color:#10b981; border-color:#10b981; padding:0.4rem 0.65rem; font-size:0.78rem;" onclick="openWorkoutProgressModal('${u.userId}')">Workouts 🏋️</button>
+                            <button class="btn-pro" style="background:rgba(255,215,0,0.2); color:var(--gold-primary); border-color:var(--border-gold); padding:0.4rem 0.65rem; font-size:0.78rem;" onclick="openChangeUserPasswordModal('${u.userId}')">Pass 🔑</button>
+                            <button class="btn-pro" style="background:rgba(255,255,255,0.08); color:#fff; padding:0.4rem 0.65rem; font-size:0.78rem;" onclick="openEditUserModal('${u.userId}')">Plan 🥗</button>
+                            ${u.membershipStatus === 'ACTIVE' ? `
+                                <button class="btn-pro btn-danger" style="padding:0.4rem 0.65rem; font-size:0.78rem;" onclick="adminCancelSubscription('${u.userId}')">Cancel ❌</button>
+                            ` : `
+                                <button class="btn-pro" style="background:rgba(16,185,129,0.25); color:#10b981; border-color:#10b981; padding:0.4rem 0.65rem; font-size:0.78rem;" onclick="adminActivateSubscription('${u.userId}')">Activate ⚡</button>
+                            `}
+                            <button class="btn-pro" style="background:rgba(255,71,87,0.15); color:#ff4757; padding:0.4rem 0.65rem; font-size:0.78rem;" onclick="deleteUser('${u.userId}')">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            const logsTbody = document.getElementById('logs-tbody');
+            if (logs.length === 0) {
+                logsTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:2rem;">No login or logout activity recorded yet.</td></tr>`;
+            } else {
+                logsTbody.innerHTML = logs.map(l => `
+                    <tr>
+                        <td><small style="color:var(--text-muted); font-weight:800;">${escapeHTML(l.timestamp)}</small></td>
+                        <td><code style="color:var(--gold-primary); font-weight:800;">${escapeHTML(l.userId)}</code></td>
+                        <td><strong>${escapeHTML(l.userName)}</strong><br><small style="color:var(--text-muted);">${escapeHTML(l.userEmail)}</small></td>
+                        <td>
+                            <span class="badge-status" style="background:${l.action.includes('IN')||l.action.includes('ACTIVATED')?'rgba(16,185,129,0.22)':'rgba(255,71,87,0.22)'}; color:${l.action.includes('IN')||l.action.includes('ACTIVATED')?'#10b981':'#ff4757'}; font-weight:900;">
+                                ${escapeHTML(l.action)}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function openWorkoutProgressModal(userId) {
+            const user = cachedUsers.find(u => u.userId === userId);
+            if (!user) return;
+
+            document.getElementById('wp-modal-title').textContent = `Workout Progress Audit — ${user.name}`;
+            document.getElementById('wp-modal-subtitle').textContent = `User ID: ${user.userId} | Split: ${user.workoutSplit || 'Push Pull Legs'} | Status: ${user.membershipStatus || 'INACTIVE'}`;
+
+            const completed = user.completedWorkouts || [];
+            const completedDiv = document.getElementById('wp-completed-list');
+            const pendingDiv = document.getElementById('wp-pending-list');
+
+            if (completed.length === 0) {
+                completedDiv.innerHTML = `<span style="color:var(--text-muted);">No workouts completed yet this week.</span>`;
+            } else {
+                completedDiv.innerHTML = completed.map(w => `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem; padding-bottom:0.4rem; border-bottom:1px solid rgba(255,255,255,0.08);">
+                        <span style="font-weight:900; color:#fff;">✓ ${escapeHTML(w.name)}</span>
+                        <small style="color:var(--gold-primary); font-weight:800;">${escapeHTML(w.completedAt)}</small>
+                    </div>
+                `).join('');
+            }
+
+            const allRoutines = ['DAY 1 — PUSH Workout', 'DAY 2 — PULL Workout', 'DAY 3 — LEGS Workout', 'DAY 4 — UPPER Workout', 'DAY 5 — LOWER Workout'];
+            const pendingRoutines = allRoutines.filter(r => !completed.some(c => c.name.includes(r.split(' ')[2])));
+
+            if (pendingRoutines.length === 0) {
+                pendingDiv.innerHTML = `<span style="color:#10b981; font-weight:800;">🎉 All weekly workouts completed!</span>`;
+            } else {
+                pendingDiv.innerHTML = pendingRoutines.map(p => `
+                    <div style="margin-bottom:0.35rem; color:var(--gold-light);">
+                        ⏳ ${escapeHTML(p)} — Incomplete
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('workout-progress-modal').classList.add('active');
+        }
+
+        function openChangeUserPasswordModal(userId) {
+            const user = cachedUsers.find(u => u.userId === userId);
+            if (!user) return;
+
+            document.getElementById('pass-user-id').value = user.userId;
+            document.getElementById('pass-new-val').value = user.password;
+            document.getElementById('change-pass-subtitle').textContent = `Client: ${user.name} (${user.email})`;
+            document.getElementById('change-pass-modal').classList.add('active');
+        }
+
+        async function handleAdminChangeUserPassword(e) {
+            e.preventDefault();
+            const userId = document.getElementById('pass-user-id').value;
+            const newPass = document.getElementById('pass-new-val').value.trim();
+            const newHash = await hashPassword(newPass);
+
+            const users = JSON.parse(localStorage.getItem('rt_users_db')) || [];
+            const user = users.find(u => u.userId === userId);
+            if (user) {
+                user.password = newPass;
+                user.passwordHash = newHash;
+                localStorage.setItem('rt_users_db', JSON.stringify(users));
+            }
+
+            alert(`🎉 Password updated successfully for Client: ${user ? user.name : userId}!\nNew Password: ${newPass}`);
+            closeModal('change-pass-modal');
+            renderAllData();
+        }
+
+        function openProofModal(txId) {
+            const payment = cachedPayments.find(p => p.txId === txId);
+            if (!payment) return;
+
+            document.getElementById('proof-modal-subtitle').textContent = `Client: ${payment.userName} | UTR: ${payment.utr} | ${payment.plan} (₹${payment.amount})`;
+            
+            const imgEl = document.getElementById('proof-modal-img');
+            imgEl.src = payment.proofImage || 'https://via.placeholder.com/600x800/10101a/ffd700?text=UPI+VERIFIED+SCREENSHOT+PROOF';
+            imgEl.classList.remove('zoomed');
+
+            const dlBtn = document.getElementById('proof-download-btn');
+            dlBtn.href = imgEl.src;
+
+            const actionsDiv = document.getElementById('proof-modal-actions');
+            if (payment.status === 'PENDING') {
+                actionsDiv.innerHTML = `
+                    <button class="btn-pro btn-gold" style="flex:1; justify-content:center;" onclick="approvePayment('${payment.txId}'); closeModal('proof-modal');">Approve Membership ✓</button>
+                    <button class="btn-pro btn-danger" style="flex:1; justify-content:center;" onclick="rejectPayment('${payment.txId}'); closeModal('proof-modal');">Reject Proof ✗</button>
+                `;
+            } else {
+                actionsDiv.innerHTML = `<button class="btn-pro" style="width:100%; justify-content:center;" onclick="closeModal('proof-modal')">Close Proof Viewer</button>`;
+            }
+
+            document.getElementById('proof-modal').classList.add('active');
+        }
+
+        function toggleZoomImg(img) { img.classList.toggle('zoomed'); }
+
+        function approvePayment(txId) {
+            const payments = JSON.parse(localStorage.getItem('rt_payments_db')) || [];
+            const payment = payments.find(p => p.txId === txId);
+            if (payment) {
+                payment.status = 'APPROVED';
+                localStorage.setItem('rt_payments_db', JSON.stringify(payments));
+
+                const users = JSON.parse(localStorage.getItem('rt_users_db')) || [];
+                const user = users.find(u => u.email.toLowerCase() === payment.userEmail.toLowerCase() || u.userId === payment.userId);
+                if (user) {
+                    user.membershipStatus = 'ACTIVE';
+                    user.activePlan = payment.plan;
+                    localStorage.setItem('rt_users_db', JSON.stringify(users));
+                }
+            }
+
+            alert(`🎉 Payment Approved! Membership automatically activated.`);
+            renderAllData();
+        }
+
+        function rejectPayment(txId) {
+            const payments = JSON.parse(localStorage.getItem('rt_payments_db')) || [];
+            const payment = payments.find(p => p.txId === txId);
+            if (payment) {
+                payment.status = 'REJECTED';
+                localStorage.setItem('rt_payments_db', JSON.stringify(payments));
+            }
+
+            alert(`Payment Record ${txId} marked as Rejected.`);
+            renderAllData();
+        }
+
+        function openEditUserModal(userId) {
+            const user = cachedUsers.find(u => u.userId === userId);
+            if (!user) return;
+
+            document.getElementById('edit-user-id').value = user.userId;
+            document.getElementById('edit-calories').value = user.calories || 2200;
+            document.getElementById('edit-protein').value = user.protein || 150;
+            document.getElementById('edit-split').value = user.workoutSplit || 'Push Pull Legs';
+            document.getElementById('edit-notes').value = user.notes || '';
+
+            document.getElementById('edit-user-modal').classList.add('active');
+        }
+
+        function handleSaveUserPlan(e) {
+            e.preventDefault();
+            const userId = document.getElementById('edit-user-id').value;
+            const users = JSON.parse(localStorage.getItem('rt_users_db')) || [];
+            const user = users.find(u => u.userId === userId);
+            if (user) {
+                user.calories = parseInt(document.getElementById('edit-calories').value);
+                user.protein = parseInt(document.getElementById('edit-protein').value);
+                user.workoutSplit = document.getElementById('edit-split').value.trim();
+                user.notes = document.getElementById('edit-notes').value.trim();
+                localStorage.setItem('rt_users_db', JSON.stringify(users));
+                alert(`Custom Plan Updated for ${user.name}!`);
+                closeModal('edit-user-modal');
+                renderAllData();
+            }
+        }
+
+        function deleteUser(userId) {
+            if (confirm(`Are you sure you want to delete user ${userId}?`)) {
+                let users = JSON.parse(localStorage.getItem('rt_users_db')) || [];
+                users = users.filter(u => u.userId !== userId);
+                localStorage.setItem('rt_users_db', JSON.stringify(users));
+                renderAllData();
+            }
+        }
+
+        function clearAuditLogs() {
+            if (confirm('Clear all login/logout activity history logs?')) {
+                localStorage.removeItem('rt_audit_logs_db');
+                renderAllData();
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('⚠️ Are you sure you want to purge all test client accounts, payments, and audit logs? This cannot be undone.')) {
+                localStorage.removeItem('rt_users_db');
+                localStorage.removeItem('rt_payments_db');
+                localStorage.removeItem('rt_audit_logs_db');
+                alert('🗑️ All database tables cleared!');
+                renderAllData();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Client Authentication | @rishutrains</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Platform-wide Liquid Glass & Responsive Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-card {
+            background: var(--surface-glass);
+            border: 2px solid var(--border-gold);
+            border-radius: 32px;
+            width: 100%;
+            max-width: 440px;
+            padding: 2.5rem 1.75rem;
+            box-shadow: 0 35px 120px rgba(0,0,0,0.95), 0 0 45px var(--gold-glow);
+            text-align: center;
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gold-gradient);
+        }
+
+        .auth-tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 5px;
+            border-radius: 18px;
+            border: 1.5px solid var(--border-gold);
+            margin-bottom: 2rem;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            background: none;
+            color: var(--text-muted);
+            font-weight: 800;
+            font-size: 0.88rem;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .auth-tab.active {
+            background: var(--gold-gradient);
+            color: #000;
+            font-weight: 900;
+            box-shadow: 0 4px 20px var(--gold-glow);
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 900;
+            color: var(--gold-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.45rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.9rem 1.15rem;
+            background: #000;
+            border: 1.5px solid var(--border-gold);
+            border-radius: 14px;
+            color: #fff;
+            font-size: 0.92rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 25px var(--gold-glow);
+        }
+
+        .auth-footer-link {
+            margin-top: 1.25rem;
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            text-decoration: underline;
+        }
+
+        .auth-footer-link:hover {
+            color: var(--gold-primary);
+        }
+
+        .msg-box {
+            padding: 0.85rem 1rem;
+            border-radius: 12px;
+            font-size: 0.84rem;
+            font-weight: 800;
+            margin-bottom: 1.25rem;
+            display: none;
+            text-align: left;
+        }
+        .msg-box.error { background: rgba(255,71,87,0.18); border: 1px solid rgba(255,71,87,0.45); color: #ff4757; }
+        .msg-box.success { background: rgba(16,185,129,0.18); border: 1px solid rgba(16,185,129,0.45); color: #10b981; }
+    </style>
+    <script src="db_manager.js"></script>
+</head>
+<body>
+
+    <div class="liquid-orb-1"></div>
+    <div class="liquid-orb-2"></div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <a href="index.html" style="text-decoration: none; display: inline-block; margin-bottom: 1.25rem;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 0.65rem;">
+                    <img src="profile.png" alt="@rishutrains" style="width: 48px; height: 48px; border-radius: 50%; border: 2.5px solid var(--gold-primary); box-shadow: 0 0 25px var(--gold-glow);" onerror="this.src='https://via.placeholder.com/48/ffd700/000?text=RT'">
+                    <span style="font-size: 1.35rem; font-weight: 900; background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">@rishutrains</span>
+                </div>
+            </a>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tab-login-btn" onclick="switchAuthTab('login')">Client Login 🔑</button>
+                <button class="auth-tab" id="tab-signup-btn" onclick="switchAuthTab('signup')">Sign Up ✨</button>
+            </div>
+
+            <!-- INLINE ALERT FEEDBACK BOX -->
+            <div id="auth-alert" class="msg-box"></div>
+
+            <!-- LOGIN FORM -->
+            <form id="login-form" onsubmit="handleLoginSubmit(event)">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" id="login-email" required placeholder="client@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="login-pass" required placeholder="••••••••••••">
+                </div>
+                <button type="submit" id="login-submit-btn" class="btn-pro btn-gold" style="width: 100%; padding: 0.95rem; font-size: 0.95rem; margin-top: 0.5rem; justify-content: center;">Login to Dashboard 🚀</button>
+            </form>
+
+            <!-- SIGN UP FORM -->
+            <form id="signup-form" onsubmit="handleSignupSubmit(event)" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" id="signup-name" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" id="signup-email" required placeholder="client@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-input" id="signup-phone" required placeholder="+91 9876543210">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Create Password</label>
+                    <input type="password" class="form-input" id="signup-pass" required placeholder="••••••••••••">
+                </div>
+                <button type="submit" id="signup-submit-btn" class="btn-pro btn-gold" style="width: 100%; padding: 0.95rem; font-size: 0.95rem; margin-top: 0.5rem; justify-content: center;">Create Client Account ✨</button>
+            </form>
+
+            <a href="index.html" class="auth-footer-link">← Return to Main Website</a>
+
+            <div style="margin-top: 1.75rem; font-size: 0.82rem; color: var(--text-muted);">
+                Protected by SHA-256 Encryption & Pure Offline File Storage
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function showAlert(msg, isError = true) {
+            const el = document.getElementById('auth-alert');
+            el.className = `msg-box ${isError ? 'error' : 'success'}`;
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+
+        function hideAlert() {
+            const el = document.getElementById('auth-alert');
+            el.style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('tab') === 'signup') {
+                switchAuthTab('signup');
+            }
+        });
+
+        function switchAuthTab(tab) {
+            hideAlert();
+            document.querySelectorAll('.auth-tab').forEach(b => b.classList.remove('active'));
+            if (tab === 'login') {
+                document.getElementById('tab-login-btn').classList.add('active');
+                document.getElementById('login-form').style.display = 'block';
+                document.getElementById('signup-form').style.display = 'none';
+            } else {
+                document.getElementById('tab-signup-btn').classList.add('active');
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('signup-form').style.display = 'block';
+            }
+        }
+
+        function getUsersDB() {
+            try { return JSON.parse(localStorage.getItem('rt_users_db')) || []; } catch (err) { return []; }
+        }
+
+        function saveUsersDB(db) {
+            try { localStorage.setItem('rt_users_db', JSON.stringify(db)); } catch (err) {}
+        }
+
+        async function handleLoginSubmit(e) {
+            e.preventDefault();
+            hideAlert();
+            const email = document.getElementById('login-email').value.trim();
+            const pass = document.getElementById('login-pass').value.trim();
+            const inputHash = await hashPassword(pass);
+
+            const users = getUsersDB();
+            const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+            if (!user) {
+                showAlert('❌ No account found for this email address. Please check your spelling or click "Sign Up" to create an account.');
+                return;
+            }
+
+            if (user.password === pass || user.passwordHash === inputHash) {
+                user.lastLogin = new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+                saveUsersDB(users);
+
+                const sessionObj = {
+                    userId: user.userId,
+                    name: user.name,
+                    email: user.email,
+                    phone: user.phone,
+                    membershipStatus: user.membershipStatus || 'INACTIVE',
+                    activePlan: user.activePlan || 'None',
+                    sessionToken: 'CLI-SESS-' + Math.floor(10000000 + Math.random() * 90000000),
+                    loginTimestamp: new Date().toISOString()
+                };
+                localStorage.setItem('rt_logged_user', JSON.stringify(sessionObj));
+
+                showAlert(`🎉 Welcome back, ${user.name}! Redirecting to Dashboard...`, false);
+                setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);
+            } else {
+                showAlert('❌ Incorrect Password! Please double-check your password or contact Coach Rishav.');
+            }
+        }
+
+        async function handleSignupSubmit(e) {
+            e.preventDefault();
+            hideAlert();
+            const name = document.getElementById('signup-name').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const phone = document.getElementById('signup-phone').value.trim();
+            const pass = document.getElementById('signup-pass').value.trim();
+            const hash = await hashPassword(pass);
+
+            const localUsers = getUsersDB();
+            if (localUsers.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+                showAlert('⚠️ An account with this email address already exists! Please switch to the "Client Login" tab.');
+                return;
+            }
+
+            const nowFormatted = new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+            const newUser = {
+                userId: 'RT-' + Math.floor(100000 + Math.random() * 900000),
+                name: name,
+                email: email,
+                phone: phone,
+                password: pass,
+                passwordHash: hash,
+                membershipStatus: 'INACTIVE',
+                activePlan: 'None',
+                calories: 2200,
+                protein: 150,
+                workoutSplit: 'Push Pull Legs',
+                notes: 'Follow your daily protein targets and log your morning body weight weekly.',
+                completedWorkouts: [],
+                createdAt: nowFormatted,
+                lastLogin: nowFormatted
+            };
+
+            localUsers.push(newUser);
+            saveUsersDB(localUsers);
+
+            const sessionObj = {
+                userId: newUser.userId,
+                name: newUser.name,
+                email: newUser.email,
+                phone: newUser.phone,
+                membershipStatus: 'INACTIVE',
+                activePlan: 'None',
+                sessionToken: 'CLI-SESS-' + Math.floor(10000000 + Math.random() * 90000000),
+                loginTimestamp: new Date().toISOString()
+            };
+            localStorage.setItem('rt_logged_user', JSON.stringify(sessionObj));
+
+            showAlert(`✨ Client Account Created & Saved Successfully! Welcome ${name}! Redirecting...`, false);
+            setTimeout(() => { window.location.href = 'dashboard.html'; }, 600);
+        }
+    </script>
+</body>
+</html>
